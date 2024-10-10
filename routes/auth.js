@@ -159,7 +159,7 @@ router.post('/changepassword', async (req, res) => {
     user.password = hashedNewPassword;
     await user.save();
 
-    res.render('changepassword', { success: 'Password has been updated successfully. You can now <a href="/login">login</a> with your new password.', securityQuestions });
+    res.render('changepassword', { success: 'Password has been updated successfully. You can now login with your new password.', securityQuestions });
   } catch (err) {
     console.error('Change Password Error:', err);
     res.render('changepassword', { error: 'Error occurred while changing password.', securityQuestions });
