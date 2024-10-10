@@ -1,17 +1,28 @@
-const Sequelize = require('sequelize');
-const sequelize = require('../app').sequelize; // Import sequelize instance
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db'); // Correct path to db.js
 
-// Define the User model
 const User = sequelize.define('User', {
-  username: {
-    type: Sequelize.STRING,
+  // Model attributes are defined here
+  firstName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  lastName: {
+    type: DataTypes.STRING,
+    // allowNull defaults to true
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
     unique: true,
-    allowNull: false,
+    validate: {
+      isEmail: true,
+    },
   },
-  password: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
+  // Add other attributes as needed
+}, {
+  // Other model options go here
+  timestamps: true, // Example option
 });
 
 module.exports = User;
