@@ -1,20 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Signup</title>
+  <title>Sign Up</title>
+  <!-- Link to the centralized CSS file -->
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <h1>Create an Account</h1>
-  <form action="/signup" method="POST">
-    <label>Username:</label><br />
-    <input type="text" name="username" required /><br />
-    <label>Password:</label><br />
-    <input type="password" name="password" required /><br /><br />
-    <button type="submit">Signup</button>
-  </form>
-  <p>
-    Already have an account?
-    <a href="/login">Login here</a>
-  </p>
+  <div class="container">
+    <h1>Sign Up</h1>
+    
+    <!-- Display error message if any -->
+    <% if (typeof error !== 'undefined') { %>
+      <p class="error"><%= error %></p>
+    <% } %>
+    
+    <form action="/signup" method="POST">
+      <!-- Username Field -->
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required />
+      
+      <!-- Password Field -->
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required />
+      
+      <!-- Role Selection Dropdown -->
+      <label for="role">Role:</label>
+      <select id="role" name="role" required>
+        <option value="customer">Customer</option>
+        <option value="supplier">Supplier</option>
+      </select>
+      
+      <!-- Submit Button -->
+      <button type="submit">Sign Up</button>
+    </form>
+    
+    <!-- Link to Login Page -->
+    <p>Already have an account? <a href="/login">Login here</a>.</p>
+  </div>
 </body>
 </html>
+

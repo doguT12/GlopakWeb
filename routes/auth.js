@@ -10,13 +10,13 @@ router.get('/signup', (req, res) => {
 
 // POST Signup Data
 router.post('/signup', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, role } = req.body;
 
   try {
     // Check if user already exists
     const userExists = await User.findOne({ where: { username } });
     if (userExists) {
-      return res.send('Username already taken.');
+      return res.render('signup', { error: 'Username already taken.' });
     }
 
     // Hash password
@@ -26,12 +26,13 @@ router.post('/signup', async (req, res) => {
     await User.create({
       username,
       password: hashedPassword,
+      role,
     });
 
     res.redirect('/login');
   } catch (err) {
-    console.error(err);
-    res.send('Error occurred during signup.');
+    console.error('Signup Error:', err); // Detailed error log
+    res.render('signup', { error: 'Error occurred during signup.' });
   }
 });
 
@@ -75,14 +76,15 @@ router.get('/dashboard', async (req, res) => {
   try {
     // Retrieve user information
     const user = await User.findByPk(req.session.userId);
+    console.log('Retrieved User:', user);
     if (!user) {
       return res.redirect('/login');
     }
 
     res.render('dashboard', { user });
   } catch (err) {
-    console.error(err);
-    res.send('Error occurred while fetching dashboard.');
+    console.error('Dashboard Error:', err);
+    res.render('dashboard', { error: 'Error occurred while fetching dashboard.' });
   }
 });
 

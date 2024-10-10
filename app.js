@@ -1,4 +1,3 @@
-// Import dependencies
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -38,8 +37,7 @@ app.use('/', authRoutes);
 const { sequelize } = require('./models');
 
 // Sync database and start server
-sequelize
-  .sync()
+sequelize.sync({ force: true }) // WARNING: This will drop and recreate tables
   .then(() => {
     console.log('Database synced successfully.');
     app.listen(3000, () => {
@@ -49,3 +47,8 @@ sequelize
   .catch((err) => {
     console.error('Error syncing database:', err);
   });
+
+// Handle 404 - Keep this as the last route
+app.use((req, res, next) => {
+  res.status(404).render('404');
+});

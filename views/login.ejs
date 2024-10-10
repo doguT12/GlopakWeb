@@ -2,19 +2,34 @@
 <html>
 <head>
   <title>Login</title>
+  <!-- Link to the centralized CSS file -->
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <h1>Login to Your Account</h1>
-  <form action="/login" method="POST">
-    <label>Username:</label><br />
-    <input type="text" name="username" required /><br />
-    <label>Password:</label><br />
-    <input type="password" name="password" required /><br /><br />
-    <button type="submit">Login</button>
-  </form>
-  <p>
-    Don't have an account?
-    <a href="/signup">Signup here</a>
-  </p>
+  <div class="container">
+    <h1>Login</h1>
+    
+    <!-- Display error message if any -->
+    <% if (typeof error !== 'undefined') { %>
+      <p class="error"><%= error %></p>
+    <% } %>
+    
+    <form action="/login" method="POST">
+      <!-- Username Field -->
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required />
+      
+      <!-- Password Field -->
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required />
+      
+      <!-- Submit Button -->
+      <button type="submit">Login</button>
+    </form>
+    
+    <!-- Link to Signup Page -->
+    <p>Don't have an account? <a href="/signup">Sign up here</a>.</p>
+  </div>
 </body>
 </html>
+
