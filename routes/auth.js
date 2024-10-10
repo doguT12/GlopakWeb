@@ -1,12 +1,19 @@
+// routes/auth.js
+
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { User } = require('../models'); 
-const securityQuestions = require('../config/securityQuestions');
+const { User } = require('../models'); // Import User model
+const securityQuestions = require('../config/securityQuestions'); // Import security questions from config
 
 // GET Signup Page
 router.get('/signup', (req, res) => {
-  res.render('signup');
+  try {
+    res.render('signup', { securityQuestions });
+  } catch (err) {
+    console.error('Signup Page Error:', err);
+    res.render('signup', { error: 'Error loading signup page.', securityQuestions });
+  }
 });
 
 // POST Signup Data
@@ -15,31 +22,38 @@ router.post('/signup', async (req, res) => {
 
   // Validate that passwords match
   if (password !== repeat_password) {
-    return res.render('signup', { error: 'Passwords do not match.' });
+    return res.render('signup', { error: 'Passwords do not match.', securityQuestions });
+  }
+
+  // Validate that security_question_id is an integer between 1 and 5
+  const questionId = parseInt(security_question_id, 10);
+  if (isNaN(questionId) || questionId < 1 || questionId > 5) {
+    return res.render('signup', { error: 'Invalid security question selected.', securityQuestions });
   }
 
   try {
     // Check if user already exists
     const userExists = await User.findOne({ where: { username } });
     if (userExists) {
-      return res.render('signup', { error: 'Username already taken.' });
+      return res.render('signup', { error: 'Username already taken.', securityQuestions });
     }
 
-    // Hash password
+    // Hash password and security answer
     const hashedPassword = await bcrypt.hash(password, 10);
     const hashedSecurityAnswer = await bcrypt.hash(security_answer, 10);
+
     // Create new user with role and security question
     await User.create({
       username,
       password: hashedPassword,
-      security_question_id: parseInt(security_question_id, 10), // Ensure it's an integer
-      security_answer: hashedSecurityAnswer
+      security_question_id: questionId,
+      security_answer: hashedSecurityAnswer, // Hashed for security
     });
 
     res.redirect('/login');
   } catch (err) {
     console.error('Signup Error:', err);
-    res.render('signup', { error: 'Error occurred during signup.' });
+    res.render('signup', { error: 'Error occurred during signup.', securityQuestions });
   }
 });
 
@@ -56,21 +70,21 @@ router.post('/login', async (req, res) => {
     // Find user
     const user = await User.findOne({ where: { username } });
     if (!user) {
-      return res.send('Invalid username or password.');
+      return res.render('login', { error: 'Invalid username or password.' });
     }
 
     // Compare passwords
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      return res.send('Invalid username or password.');
+      return res.render('login', { error: 'Invalid username or password.' });
     }
 
     // Save user ID in session
     req.session.userId = user.id;
     res.redirect('/dashboard');
   } catch (err) {
-    console.error(err);
-    res.send('Error occurred during login.');
+    console.error('Login Error:', err);
+    res.render('login', { error: 'Error occurred during login.' });
   }
 });
 
@@ -83,7 +97,6 @@ router.get('/dashboard', async (req, res) => {
   try {
     // Retrieve user information
     const user = await User.findByPk(req.session.userId);
-    console.log('Retrieved User:', user);
     if (!user) {
       return res.redirect('/login');
     }
@@ -95,16 +108,6 @@ router.get('/dashboard', async (req, res) => {
   }
 });
 
-// GET Logout
-router.get('/logout', (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.error('Error destroying session:', err);
-      return res.send('Error occurred during logout.');
-    }
-    res.redirect('/login');
-  });
-});
 // GET Change Password Page
 router.get('/changepassword', (req, res) => {
   try {
@@ -143,7 +146,7 @@ router.post('/changepassword', async (req, res) => {
       return res.render('changepassword', { error: 'Username and security question do not match.', securityQuestions });
     }
 
-   
+    // Compare hashed security answer
     const match = await bcrypt.compare(security_answer, user.security_answer);
     if (!match) {
       return res.render('changepassword', { error: 'Security answer is incorrect.', securityQuestions });
@@ -162,5 +165,17 @@ router.post('/changepassword', async (req, res) => {
     res.render('changepassword', { error: 'Error occurred while changing password.', securityQuestions });
   }
 });
+
+// GET Logout
+router.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout Error:', err);
+      return res.render('dashboard', { error: 'Error occurred during logout.' });
+    }
+    res.redirect('/login');
+  });
+});
+
 module.exports = router;
 
