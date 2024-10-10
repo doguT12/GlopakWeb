@@ -11,8 +11,8 @@ This repo contains code for my CS IA.
 - [ ] Account Priveleges
    - [ ] Admin
    - [x] Customer
-   - [X] Supplier
-   - [ ] Changing Password
+   - [x] Supplier
+   - [x] Changing Password
 - [ ] Buyer Questionaire
 - [ ] Supplier Questionare
 - [ ] Buyer-User Matching Software
