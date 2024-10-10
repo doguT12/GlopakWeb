@@ -2,19 +2,28 @@
 <html>
 <head>
   <title>Sign Up</title>
-  <!-- Link to the centralized CSS file -->
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles.css"> <!-- Link to your CSS -->
+  <script>
+    function validateForm() {
+      const password = document.getElementById('password').value;
+      const repeatPassword = document.getElementById('repeat_password').value;
+      if (password !== repeatPassword) {
+        alert('Passwords do not match.');
+        return false; // Prevent form submission
+      }
+      return true; // Allow form submission
+    }
+  </script>
 </head>
 <body>
   <div class="container">
     <h1>Sign Up</h1>
     
-    <!-- Display error message if any -->
     <% if (typeof error !== 'undefined') { %>
       <p class="error"><%= error %></p>
     <% } %>
     
-    <form action="/signup" method="POST">
+    <form action="/signup" method="POST" onsubmit="return validateForm()">
       <!-- Username Field -->
       <label for="username">Username:</label>
       <input type="text" id="username" name="username" required />
@@ -23,18 +32,29 @@
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required />
       
-      <!-- Role Selection Dropdown -->
-      <label for="role">Role:</label>
-      <select id="role" name="role" required>
-        <option value="customer">Customer</option>
-        <option value="supplier">Supplier</option>
+      <!-- Repeat Password Field -->
+      <label for="repeat_password">Repeat Password:</label>
+      <input type="password" id="repeat_password" name="repeat_password" required />
+      
+      <!-- Security Question Selection -->
+      <label for="security_question_id">Security Question:</label>
+      <select id="security_question_id" name="security_question_id" required>
+        <option value="" disabled selected>Select a security question</option>
+        <option value="1">What was the name of your childhood pet?</option>
+        <option value="2">What is your favorite book?</option>
+        <option value="3">What city were you born in?</option>
+        <option value="4">What is your mother's maiden name?</option>
+        <option value="5">What was the name of your first school?</option>
       </select>
+      
+      <!-- Security Answer Field -->
+      <label for="security_answer">Security Answer:</label>
+      <input type="text" id="security_answer" name="security_answer" required />
       
       <!-- Submit Button -->
       <button type="submit">Sign Up</button>
     </form>
     
-    <!-- Link to Login Page -->
     <p>Already have an account? <a href="/login">Login here</a>.</p>
   </div>
 </body>

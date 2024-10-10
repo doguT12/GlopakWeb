@@ -4,8 +4,7 @@ module.exports = (sequelize) => {
   const User = sequelize.define('User', {
     username: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unique: true, // Ensures usernames are unique
+      allowNull: false,      unique: true,
       validate: {
         notEmpty: true,
       },
@@ -20,10 +19,26 @@ module.exports = (sequelize) => {
     role: {
       type: DataTypes.ENUM('customer', 'supplier'),
       allowNull: false,
-      defaultValue: 'customer', // Sets default role
+      defaultValue: 'customer',
+    },
+    security_question_id: { // Changed Field
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        isInt: true,
+        min: 1,
+        max: 5, // amount of questions
+      },
+    },
+    security_answer: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
   }, {
-    timestamps: true, // Adds createdAt and updatedAt fields
+    timestamps: true,
   });
 
   return User;

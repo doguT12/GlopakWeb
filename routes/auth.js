@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { User } = require('../models'); // Updated import
+const { User } = require('../models'); 
+const securityQuestions = require('../config/securityquestions');
 
 // GET Signup Page
 router.get('/signup', (req, res) => {
@@ -10,7 +11,12 @@ router.get('/signup', (req, res) => {
 
 // POST Signup Data
 router.post('/signup', async (req, res) => {
-  const { username, password, role } = req.body;
+  const { username, password, repeat_password, security_question_id, security_answer } = req.body;
+
+  // Validate that passwords match
+  if (password !== repeat_password) {
+    return res.render('signup', { error: 'Passwords do not match.' });
+  }
 
   try {
     // Check if user already exists
@@ -22,16 +28,17 @@ router.post('/signup', async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new user
+    // Create new user with role and security question
     await User.create({
       username,
       password: hashedPassword,
-      role,
+      security_question_id: parseInt(security_question_id, 10), // Ensure it's an integer
+      security_answer,
     });
 
     res.redirect('/login');
   } catch (err) {
-    console.error('Signup Error:', err); // Detailed error log
+    console.error('Signup Error:', err);
     res.render('signup', { error: 'Error occurred during signup.' });
   }
 });
