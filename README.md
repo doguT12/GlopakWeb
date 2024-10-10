@@ -12,7 +12,7 @@ This repo contains code for my CS IA.
    - [ ] Admin
    - [x] Customer
    - [X] Supplier
-   - [ ] Changing Password
+   - [x] Changing Password
 - [ ] Buyer Questionaire
 - [ ] Supplier Questionare
 - [ ] Buyer-User Matching Software
