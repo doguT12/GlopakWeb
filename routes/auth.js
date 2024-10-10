@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const { User } = require('../models'); 
-const securityQuestions = require('../config/securityquestions');
+const securityQuestions = require('../config/securityQuestions');
 
 // GET Signup Page
 router.get('/signup', (req, res) => {
