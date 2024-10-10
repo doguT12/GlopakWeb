@@ -5,13 +5,13 @@ This repo contains code for my CS IA.
 
 ## Features
 
-- [ ] Login and Signup
-    - [ ] Security Question
+- [x] Login and Signup
+    - [x] Security Question
 - [ ] Database 
 - [ ] Account Priveleges
    - [ ] Admin
-   - [ ] Buyer
-   - [ ] Supplier
+   - [x] Customer
+   - [X] Supplier
    - [ ] Changing Password
 - [ ] Buyer Questionaire
 - [ ] Supplier Questionare
