@@ -1,49 +1,35 @@
-// import 
+// Import dependencies
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const Sequelize = require('sequelize');
 const path = require('path');
 
 require('dotenv').config();
 
-//ınitialize  app
+// Initialize app
 const app = express();
 
-// seting up view engine
+// Setting up view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// use body parser
+// Use body parser
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// set up static folder
+// Set up static folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// vonfigure session middleware
+// Configure session middleware
 app.use(
-    session({
-      secret: process.env.SESSION_SECRET,
-      resave: false,
-      saveUninitialized: false,
-    })
-  );
-
-// Initialize Sequelize with SQLite
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: './database.sqlite', // Database file location
-});
-
-// Test database connection
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log('Connection to SQLite has been established successfully.');
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
   })
-  .catch((err) => {
-    console.error('Unable to connect to the database:', err);
-  });
+);
+
+// Import Sequelize instance
+const sequelize = require('./config/db');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -55,6 +41,3 @@ sequelize.sync().then(() => {
     console.log('Server is running on http://localhost:3000');
   });
 });
-
-// Export sequelize for use in other files
-module.exports = sequelize;
