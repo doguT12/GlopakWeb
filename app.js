@@ -34,10 +34,36 @@ app.use('/', authRoutes);
 // Import models and sequelize
 const { sequelize } = require('./models');
 
+// Function to create admin user using environment variables
+async function createAdminUser() {
+  try {
+    const adminExists = await User.findOne({ where: { username: 'admin' } });
+    if (!adminExists) {
+      const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
+      const hashedSecurityAnswer = await bcrypt.hash(process.env.ADMIN_SECURITY_ANSWER, 10);
+      
+      await User.create({
+        username: 'admin',
+        password: hashedPassword,
+        role: 'admin', // Assign the hidden admin role
+        security_question_id: 1, // Default security question
+        security_answer: hashedSecurityAnswer // Hashed security answer from env
+      });
+
+      console.log('Admin user created successfully.');
+    } else {
+      console.log('Admin user already exists.');
+    }
+  } catch (err) {
+    console.error('Error creating admin user:', err);
+  }
+}
+
 // Sync database and start server
-sequelize.sync({ force: true }) // WARNING: This will drop and recreate tables
+sequelize.sync({ force: false }) // WARNING: This will drop and recreate tables
   .then(() => {
     console.log('Database synced successfully.');
+    createAdminUser();
     app.listen(3000, () => {
       console.log('Server is running on http://localhost:3000');
     });
