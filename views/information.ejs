@@ -14,7 +14,7 @@
     }
     
     .container {
-      max-width: 1200px;
+      max-width: 1000px;
       margin: 0 auto;
       padding: 20px;
     }
@@ -29,53 +29,76 @@
 
     header h1 {
       margin: 0;
-      font-size: 2.5em;
+      font-size: 2em;
+    }
+
+    /* Navigation */
+    nav {
+      background-color: #34495e;
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+
+    nav a {
+      color: #ecf0f1;
+      text-decoration: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    nav a:hover {
+      background-color: #2980b9;
     }
 
     /* Company Information Section */
     .company-info {
-      margin-top: 30px;
+      margin-top: 20px;
       background-color: #ffffff;
-      padding: 20px;
+      padding: 15px;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
     }
 
     .company-info h2 {
-      font-size: 2em;
-      margin-bottom: 15px;
-    }
-
-    .company-info p {
-      font-size: 1.2em;
+      font-size: 1.6em;
       margin-bottom: 10px;
     }
 
-    /* Employee Section */
+    .company-info p {
+      font-size: 1.1em;
+      margin-bottom: 8px;
+    }
+
+    /* Team Section */
     .team-section {
-      margin-top: 40px;
+      margin-top: 20px;
+      margin-bottom: 20px;
     }
 
     .team-section h2 {
-      font-size: 2em;
+      font-size: 1.6em;
       margin-bottom: 15px;
     }
 
     .team-member {
       display: flex;
       align-items: center;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       background-color: #ffffff;
-      padding: 20px;
+      padding: 10px;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
     }
 
     .team-member img {
       border-radius: 50%;
       margin-right: 20px;
-      width: 120px;
-      height: 120px;
+      width: 80px;
+      height: 80px;
     }
 
     .team-member-info {
@@ -83,36 +106,19 @@
     }
 
     .team-member-info h3 {
-      font-size: 1.5em;
+      font-size: 1.4em;
       margin: 0;
     }
 
     .team-member-info p {
-      font-size: 1.1em;
-      margin: 5px 0;
+      font-size: 1em;
+      margin: 4px 0;
     }
 
     .team-member-info a {
       color: #2980b9;
       text-decoration: none;
       font-weight: bold;
-    }
-
-    /* Return Button */
-    .return-button {
-      display: inline-block;
-      margin-top: 40px;
-      padding: 10px 20px;
-      background-color: #3498db;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 5px;
-      font-weight: bold;
-      transition: background-color 0.3s;
-    }
-
-    .return-button:hover {
-      background-color: #2980b9;
     }
 
     /* Footer */
@@ -127,13 +133,19 @@
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Header and Navigation -->
   <header>
     <div class="container">
-      <h1>About Glopak Ambalaj</h1>
-      <p>Leading Packaging Solutions Since 1990</p>
+      <h1>Glopak Ambalaj - Information</h1>
     </div>
   </header>
+
+  <!-- Navigation Bar -->
+  <nav>
+    <a href="/dashboard">Return to Dashboard</a>
+    <a href="/dms">Direct Messages</a>
+    <a href="/products">Products</a>
+  </nav>
 
   <!-- Company Information Section -->
   <div class="container company-info">
@@ -179,11 +191,6 @@
         <p>Michael leads the engineering team at Glopak, constantly innovating new packaging technologies to better serve our clients.</p>
       </div>
     </div>
-  </div>
-
-  <!-- Return to Dashboard Button -->
-  <div class="container">
-    <a href="/dashboard" class="return-button">Return to Dashboard</a>
   </div>
 
   <!-- Footer -->

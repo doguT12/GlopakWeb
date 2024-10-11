@@ -1,21 +1,18 @@
-const sequelize = require('../config/db');
-const { DataTypes } = require('sequelize');
+const Sequelize = require('sequelize');
 
-// Import models
-const User = require('./user')(sequelize);
+// Initialize Sequelize with the database connection (adjust as necessary for SQLite)
+const sequelize = new Sequelize(process.env.DATABASE_URL || 'sqlite:./database.sqlite');
 
-// Add other models here and initialize them similarly
-// const Post = require('./post')(sequelize);
-// const Comment = require('./comment')(sequelize);
+// Import models and pass the initialized `sequelize` instance
+const User = require('./User')(sequelize);
+const Chat = require('./Chat')(sequelize);
+const Message = require('./Message')(sequelize);
 
-// Define associations if any
-// Example:
-// User.hasMany(Post);
-// Post.belongsTo(User);
+// If relationships are necessary, they should be defined here (based on usernames, you may not need foreign keys)
 
 module.exports = {
-  sequelize,
+  sequelize,  // Export the initialized `sequelize` instance
   User,
-  // Export other models here
+  Chat,
+  Message
 };
-

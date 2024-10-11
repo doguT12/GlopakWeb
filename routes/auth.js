@@ -3,8 +3,9 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { User } = require('../models'); // Import User model
+const { User, Chat, Message} = require('../models'); // Import User model
 const securityQuestions = require('../config/securityQuestions'); // Import security questions from config
+const { Op } = require('sequelize');  // Import Sequelize operators
 
 const allowedRoles = ['customer', 'supplier'];
 // GET Signup Page
@@ -88,7 +89,9 @@ router.post('/login', async (req, res) => {
 
     // Save user ID in session
     req.session.userId = user.id;
+    req.session.username = user.username;
     res.redirect('/dashboard');
+    
   } catch (err) {
     console.error('Login Error:', err);
     res.render('login', { error: 'Error occurred during login.' });
@@ -183,6 +186,165 @@ router.get('/logout', (req, res) => {
     res.redirect('/login');
   });
 });
+
+// Information Page
+router.get('/information', (req, res) => {
+  res.render('information'); // Renders the information.ejs file
+});
+
+// CHAt
+
+// Display the Direct Messages page with open chats
+router.get('/dms', async (req, res) => {
+  if (!req.session.username) {
+    return res.redirect('/login');
+  }
+
+  try {
+    // Find chats where the user is either user1 or user2
+    const userChats = await Chat.findAll({
+      where: {
+        [Op.or]: [
+          { user1_username: req.session.username },
+          { user2_username: req.session.username }
+        ]
+      }
+    });
+
+    // Map over the chats and determine the other user's info to display
+    const dms = userChats.map(chat => {
+      const otherUsername = chat.user1_username === req.session.username ? chat.user2_username : chat.user1_username;
+      return {
+        otherUsername
+      };
+    });
+
+    res.render('dms', { dms });
+  } catch (err) {
+    console.error('Error fetching DMs:', err);
+    res.render('dms', { dms: [], error: 'Error loading direct messages.' });
+  }
+});
+
+router.post('/dms/new', async (req, res) => {
+  const { username } = req.body;
+
+  try {
+    // Ensure req.session.username is defined (logged-in user's username)
+    if (!req.session.username) {
+      return res.redirect('/login');  // Redirect if user is not logged in
+    }
+
+    // Find the other user by their username
+    const otherUser = await User.findOne({ where: { username } });
+
+    // Check if otherUser exists and if the user is not trying to message themselves
+    if (otherUser && otherUser.username !== req.session.username) {
+      // Check if a chat already exists between the two users
+      const existingChat = await Chat.findOne({
+        where: {
+          [Op.or]: [
+            { user1_username: req.session.username, user2_username: otherUser.username },
+            { user1_username: otherUser.username, user2_username: req.session.username }
+          ]
+        }
+      });
+
+      if (existingChat) {
+        return res.redirect(`/dms/${otherUser.username}`);  // Redirect to the existing chat
+      }
+
+      // If no existing chat, create a new one
+      await Chat.create({
+        user1_username: req.session.username,
+        user2_username: otherUser.username
+      });
+
+      // Redirect to the newly created chat
+      res.redirect(`/dms/${otherUser.username}`);
+    } else {
+      // If user not found or trying to message themselves
+      res.render('dms', { dms: [], error: 'User not found or you cannot message yourself.' });
+    }
+  } catch (err) {
+    console.error('Error starting new DM:', err);
+    res.render('dms', { dms: [], error: 'Error starting new conversation.' });
+  }
+});
+// Show messages for a specific chat (based on usernames)
+router.get('/dms/:otherUsername', async (req, res) => {
+  const { otherUsername } = req.params;
+
+  try {
+    // Check if the chat exists between the current user and the other user
+    const chat = await Chat.findOne({
+      where: {
+        [Op.or]: [
+          { user1_username: req.session.username, user2_username: otherUsername },
+          { user1_username: otherUsername, user2_username: req.session.username }
+        ]
+      }
+    });
+
+    if (!chat) {
+      return res.redirect('/dms');
+    }
+
+    // Fetch messages for this chat
+    const messages = await Message.findAll({
+      where: {
+        chat_username1: chat.user1_username,
+        chat_username2: chat.user2_username
+      },
+      order: [['timestamp', 'ASC']]
+    });
+
+    res.render('chat', {
+      messages,
+      otherUsername,
+      currentUsername: req.session.username
+    });
+  } catch (err) {
+    console.error('Error fetching chat:', err);
+    res.redirect('/dms');
+  }
+});
+
+// Send a new message in the chat (based on usernames)
+router.post('/dms/:otherUsername', async (req, res) => {
+  const { otherUsername } = req.params;
+  const { message } = req.body;
+
+  try {
+    // Check if the chat exists between the current user and the other user
+    const chat = await Chat.findOne({
+      where: {
+        [Op.or]: [
+          { user1_username: req.session.username, user2_username: otherUsername },
+          { user1_username: otherUsername, user2_username: req.session.username }
+        ]
+      }
+    });
+
+    if (!chat) {
+      return res.redirect('/dms');
+    }
+
+    // Insert the new message into the Messages table
+    await Message.create({
+      chat_username1: chat.user1_username,
+      chat_username2: chat.user2_username,
+      sender_username: req.session.username,
+      text: message
+    });
+
+    res.redirect(`/dms/${otherUsername}`);
+  } catch (err) {
+    console.error('Error sending message:', err);
+    res.redirect(`/dms/${otherUsername}`);
+  }
+});
+
 
 module.exports = router;
 

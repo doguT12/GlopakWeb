@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat with <%= otherUsername %></title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      padding: 10px 0;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    nav {
+      background-color: #34495e;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+    }
+
+    nav a {
+      color: #ecf0f1;
+      text-decoration: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    nav a:hover {
+      background-color: #2980b9;
+    }
+
+    .chat-messages {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      max-height: 500px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+
+    .message {
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      word-wrap: break-word;
+    }
+
+    .message.sent {
+      background-color: #d1ffd1;
+      text-align: right;
+    }
+
+    .message.received {
+      background-color: #f1f1f1;
+    }
+
+    .timestamp {
+      font-size: 0.8em;
+      color: #777;
+      display: block;
+      margin-top: 5px;
+    }
+
+    form {
+      display: flex;
+      align-items: center;
+    }
+
+    textarea {
+      width: 80%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      resize: none;
+      height: 50px;
+    }
+
+    button {
+      width: 20%;
+      background-color: #3498db;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Section -->
+  <header>
+    <div class="container">
+      <h1>Chat with <%= otherUsername %></h1>
+    </div>
+  </header>
+
+  <!-- Navigation Bar -->
+  <nav>
+    <a href="/dashboard">Back to Dashboard</a>
+    <a href="/information">Information</a>
+    <a href="/products">Products</a>
+  </nav>
+
+  <!-- Chat Messages Section -->
+  <div class="container">
+    <div class="chat-messages">
+      <% messages.forEach(function(message) { %>
+        <div class="message <%= message.sender_username === currentUsername ? 'sent' : 'received' %>">
+          <strong><%= message.sender_username %></strong>: <%= message.text %>
+          <span class="timestamp"><%= message.timestamp %></span>
+        </div>
+      <% }); %>
+    </div>
+
+    <!-- Form to send a new message -->
+    <form action="/dms/<%= otherUsername %>" method="POST">
+      <textarea name="message" placeholder="Type your message..." required></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <!-- Footer Section -->
+  <footer>
+    <div class="container">
+      <p>&copy; <%= new Date().getFullYear() %> Glopak Ambalaj - All Rights Reserved</p>
+    </div>
+  </footer>
+
+</body>
+</html>
+
