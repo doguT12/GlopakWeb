@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const { User } = require('../models'); // Import User model
 const securityQuestions = require('../config/securityQuestions'); // Import security questions from config
 
+const allowedRoles = ['customer', 'supplier'];
 // GET Signup Page
 router.get('/signup', (req, res) => {
   try {
@@ -18,7 +19,7 @@ router.get('/signup', (req, res) => {
 
 // POST Signup Data
 router.post('/signup', async (req, res) => {
-  const { username, password, repeat_password, security_question_id, security_answer } = req.body;
+  const { username, password, repeat_password, security_question_id, security_answer, role } = req.body;
 
   // Validate that passwords match
   if (password !== repeat_password) {
@@ -29,6 +30,11 @@ router.post('/signup', async (req, res) => {
   const questionId = parseInt(security_question_id, 10);
   if (isNaN(questionId) || questionId < 1 || questionId > 5) {
     return res.render('signup', { error: 'Invalid security question selected.', securityQuestions });
+  }
+
+  // Validate role
+  if (!allowedRoles.includes(role)) {
+    return res.render('signup', { error: 'Invalid role selected.', securityQuestions });
   }
 
   try {
@@ -48,6 +54,7 @@ router.post('/signup', async (req, res) => {
       password: hashedPassword,
       security_question_id: questionId,
       security_answer: hashedSecurityAnswer, // Hashed for security
+      role, // **Include role here**
     });
 
     res.redirect('/login');
