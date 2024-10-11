@@ -117,6 +117,24 @@
       background-color: #2980b9;
     }
 
+    /* Button for messaging support (admin) */
+    .support-button {
+      background-color: #e74c3c;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 1.2em;
+      display: inline-block;
+      margin-top: 20px;
+      transition: background-color 0.3s;
+      cursor: pointer;
+    }
+
+    .support-button:hover {
+      background-color: #c0392b;
+    }
+
     footer {
       text-align: center;
       padding: 20px;
@@ -125,6 +143,14 @@
       margin-top: 20px;
     }
   </style>
+  
+  <script>
+    // Function to automatically fill 'admin' into the search bar and submit the form
+    function messageSupport() {
+      document.getElementById('username').value = 'admin';  // Fill in 'admin'
+      document.getElementById('searchForm').submit();       // Submit the form automatically
+    }
+  </script>
 </head>
 <body>
 
@@ -162,12 +188,15 @@
     <!-- Search for Users -->
     <div class="search-form">
       <h2>Start a New Conversation</h2>
-      <form action="/dms/new" method="POST">
+      <form id="searchForm" action="/dms/new" method="POST">
         <label for="username">Search by Username</label>
         <input type="text" id="username" name="username" placeholder="Enter username..." required>
         <button type="submit">Start Conversation</button>
       </form>
     </div>
+
+    <!-- Message Support (Admin) Button -->
+    <button class="support-button" onclick="messageSupport()">Message Support</button>
   </div>
 
   <!-- Footer Section -->

@@ -345,6 +345,5 @@ router.post('/dms/:otherUsername', async (req, res) => {
   }
 });
 
-
 module.exports = router;
 
