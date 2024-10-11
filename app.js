@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const path = require('path');
-
+const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 // Initialize app
@@ -31,11 +31,11 @@ app.use(
 const authRoutes = require('./routes/auth');
 app.use('/', authRoutes);
 
-// Import models and sequelize
-const { sequelize } = require('./models');
+// **Ensure correct import of User model**
+const { sequelize, User } = require('./models'); // Add this line to import the User model
 
 // Function to create admin user using environment variables
- async function createAdminUser() {
+async function createAdminUser() {
   try {
     const adminExists = await User.findOne({ where: { username: 'admin' } });
     if (!adminExists) {
@@ -60,10 +60,11 @@ const { sequelize } = require('./models');
 }
 
 // Sync database and start server
-sequelize.sync({ force: false }) // WARNING: This will drop and recreate tables
-  .then(async() => {
+sequelize.sync({ force: false }) // Ensure it doesn't drop tables in production
+  .then(async () => {
     console.log('Database synced successfully.');
-    await createAdminUser();
+    await createAdminUser(); // Call the function to create the admin user
+
     app.listen(3000, () => {
       console.log('Server is running on http://localhost:3000');
     });
