@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Glopak Ambalaj</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    header {
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.5em;
+    }
+
+    /* Company Information Section */
+    .company-info {
+      margin-top: 30px;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .company-info h2 {
+      font-size: 2em;
+      margin-bottom: 15px;
+    }
+
+    .company-info p {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+
+    /* Employee Section */
+    .team-section {
+      margin-top: 40px;
+    }
+
+    .team-section h2 {
+      font-size: 2em;
+      margin-bottom: 15px;
+    }
+
+    .team-member {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .team-member img {
+      border-radius: 50%;
+      margin-right: 20px;
+      width: 120px;
+      height: 120px;
+    }
+
+    .team-member-info {
+      flex-grow: 1;
+    }
+
+    .team-member-info h3 {
+      font-size: 1.5em;
+      margin: 0;
+    }
+
+    .team-member-info p {
+      font-size: 1.1em;
+      margin: 5px 0;
+    }
+
+    .team-member-info a {
+      color: #2980b9;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    /* Return Button */
+    .return-button {
+      display: inline-block;
+      margin-top: 40px;
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    .return-button:hover {
+      background-color: #2980b9;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <h1>About Glopak Ambalaj</h1>
+      <p>Leading Packaging Solutions Since 1990</p>
+    </div>
+  </header>
+
+  <!-- Company Information Section -->
+  <div class="container company-info">
+    <h2>Our Company</h2>
+    <p><strong>Founded:</strong> 1990</p>
+    <p><strong>Customers Supplied:</strong> Over 5,000 satisfied businesses worldwide.</p>
+    <p>At Glopak Ambalaj, we specialize in delivering high-quality packaging solutions to meet the diverse needs of our customers. From small businesses to large corporations, we are proud to support a wide range of industries.</p>
+  </div>
+
+  <!-- Team Section -->
+  <div class="container team-section">
+    <h2>Our Team</h2>
+
+    <!-- Team Member 1 -->
+    <div class="team-member">
+      <img src="/images/ceo.jpg" alt="CEO Photo" />
+      <div class="team-member-info">
+        <h3>John Doe</h3>
+        <p><strong>Role:</strong> CEO</p>
+        <p><strong>Email:</strong> <a href="mailto:john.doe@glopak.com">john.doe@glopak.com</a></p>
+        <p>John has been leading Glopak Ambalaj since its founding and continues to drive the company's success in the global market.</p>
+      </div>
+    </div>
+
+    <!-- Team Member 2 -->
+    <div class="team-member">
+      <img src="/images/worker1.jpg" alt="Worker 1 Photo" />
+      <div class="team-member-info">
+        <h3>Jane Smith</h3>
+        <p><strong>Role:</strong> Operations Manager</p>
+        <p><strong>Email:</strong> <a href="mailto:jane.smith@glopak.com">jane.smith@glopak.com</a></p>
+        <p>Jane oversees day-to-day operations at Glopak, ensuring that our packaging solutions are delivered on time and to the highest standards.</p>
+      </div>
+    </div>
+
+    <!-- Team Member 3 -->
+    <div class="team-member">
+      <img src="/images/worker2.jpg" alt="Worker 2 Photo" />
+      <div class="team-member-info">
+        <h3>Michael Brown</h3>
+        <p><strong>Role:</strong> Lead Packaging Engineer</p>
+        <p><strong>Email:</strong> <a href="mailto:michael.brown@glopak.com">michael.brown@glopak.com</a></p>
+        <p>Michael leads the engineering team at Glopak, constantly innovating new packaging technologies to better serve our clients.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Return to Dashboard Button -->
+  <div class="container">
+    <a href="/dashboard" class="return-button">Return to Dashboard</a>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; <%= new Date().getFullYear() %> Glopak Ambalaj - All Rights Reserved</p>
+  </footer>
+
+</body>
+</html>

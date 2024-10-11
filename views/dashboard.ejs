@@ -106,6 +106,11 @@
     <a href="/information">Information</a>
     <a href="/dms">Direct Messages</a>
     <a href="/products">Products</a>
+    
+    <!-- Conditionally render "User Data" button for admin users -->
+    <% if (user.role === 'admin') { %>
+      <a href="/user-data">User Data</a>
+    <% } %>
   </nav>
 
   <!-- Main Content Section -->
