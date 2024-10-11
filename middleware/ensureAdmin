@@ -1,0 +1,19 @@
+function ensureAdmin(req, res, next) {
+  if (req.session.userId) {
+    User.findByPk(req.session.userId)
+      .then(user => {
+        if (user && user.role === 'admin') {
+          next(); // User is an admin, allow access
+        } else {
+          res.status(403).send('Access denied. Admins only.');
+        }
+      })
+      .catch(err => {
+        res.status(500).send('Internal server error.');
+      });
+  } else {
+    res.redirect('/login');
+  }
+}
+
+module.exports = ensureAdmin;

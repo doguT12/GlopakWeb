@@ -17,7 +17,7 @@ module.exports = (sequelize) => {
       },
     },
     role: {
-      type: DataTypes.ENUM('customer', 'supplier'),
+      type: DataTypes.ENUM('customer', 'supplier', 'admin'),
       allowNull: false,
     },
     security_question_id: { // Changed Field

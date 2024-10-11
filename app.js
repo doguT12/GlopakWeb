@@ -35,7 +35,7 @@ app.use('/', authRoutes);
 const { sequelize } = require('./models');
 
 // Function to create admin user using environment variables
-async function createAdminUser() {
+ async function createAdminUser() {
   try {
     const adminExists = await User.findOne({ where: { username: 'admin' } });
     if (!adminExists) {
@@ -61,9 +61,9 @@ async function createAdminUser() {
 
 // Sync database and start server
 sequelize.sync({ force: false }) // WARNING: This will drop and recreate tables
-  .then(() => {
+  .then(async() => {
     console.log('Database synced successfully.');
-    createAdminUser();
+    await createAdminUser();
     app.listen(3000, () => {
       console.log('Server is running on http://localhost:3000');
     });
