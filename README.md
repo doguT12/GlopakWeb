@@ -7,13 +7,13 @@ This repo contains code for my CS IA.
 
 - [x] Login and Signup
     - [x] Security Question
-- [ ] Database 
-- [ ] Account Priveleges
-   - [ ] Admin
+- [X] Database 
+- [X] Account Priveleges
+   - [X] Admin
    - [x] Customer
    - [X] Supplier
    - [x] Changing Password
-- [ ] Buyer Questionaire
-- [ ] Supplier Questionare
-- [ ] Buyer-User Matching Software
-- [ ] DMs
+- [X] Buyer Questionaire
+- [X] Supplier Questionare
+- [X] Buyer-User Matching Software
+- [X] DMs
