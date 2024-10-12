@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const path = require('path');
 const bcrypt = require('bcrypt');
+const multer = require('multer');
 require('dotenv').config();
 
 // Initialize app
@@ -27,11 +28,19 @@ app.use(
   })
 );
 
-// 'mport routes
+// import routes auth
 const authRoutes = require('./routes/auth');
 app.use('/', authRoutes);
-
+//import models
 const { sequelize, User } = require('./models');
+
+// import routes product
+const productRoutes = require('./routes/products');
+app.use('/products', productRoutes);
+// image upload
+const upload = multer({ dest: 'public/uploads/' });
+
+app.use(upload.single('image'));
 
 //create admin
 async function createAdminUser() {

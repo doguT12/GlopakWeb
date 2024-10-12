@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Products</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Products</h1>
+    <% if (user && user.role === 'admin') { %>
+      <a href="/products/add" class="button">Add Product</a>
+    <% } %>
+    <div class="product-list">
+      <% products.forEach(product => { %>
+        <div class="product-item">
+          <h2><%= product.name %></h2>
+          <p><%= product.description %></p>
+          <% if (product.image) { %>
+            <img src="/uploads/<%= product.image %>" alt="<%= product.name %>">
+          <% } %>
+          <% if (user && user.role === 'admin') { %>
+            <form action="/products/edit/<%= product.id %>" method="POST">
+              <input type="text" name="name" value="<%= product.name %>">
+              <textarea name="description"><%= product.description %></textarea>
+              <button type="submit">Edit</button>
+            </form>
+            <form action="/products/delete/<%= product.id %>" method="POST">
+              <button type="submit">Delete</button>
+            </form>
+          <% } %>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</body>
+</html>
