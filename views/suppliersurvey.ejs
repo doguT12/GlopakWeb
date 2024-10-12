@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glopak Ambalaj - Supplier Survey</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      padding: 10px 0;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    nav {
+      background-color: #34495e;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: #ecf0f1;
+      text-decoration: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      margin: 5px;
+    }
+
+    nav a:hover {
+      background-color: #2980b9;
+    }
+
+    .error {
+      color: red;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      margin-top: 40px;
+    }
+
+
+    .survey-section {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-top: 30px;
+    }
+
+    .survey-section h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+
+    .product-item {
+      border-bottom: 1px solid #ddd;
+      padding: 20px 0;
+    }
+
+    .product-item:last-child {
+      border-bottom: none;
+    }
+
+    .product-name {
+      font-size: 1.2em;
+      color: #34495e;
+      margin-bottom: 10px;
+    }
+
+    .supply-button {
+      padding: 8px 16px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-weight: bold;
+    }
+
+    .supply-button:hover {
+      background-color: #1e8449;
+    }
+
+    .additional-info {
+      margin-top: 15px;
+      display: none;
+      background-color: #f9f9f9;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .additional-info label {
+      display: block;
+      margin-bottom: 5px;
+      color: #34495e;
+      font-weight: bold;
+    }
+
+    .additional-info input[type="number"],
+    .additional-info input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .additional-info .slider-value {
+      text-align: right;
+      font-weight: bold;
+      color: #2980b9;
+      margin-bottom: 10px;
+    }
+
+    .submit-button {
+      width: 100%;
+      padding: 12px;
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-weight: bold;
+    }
+
+    .submit-button:hover {
+      background-color: #1c5980;
+    }
+
+   
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      nav a {
+        width: 80%;
+        text-align: center;
+      }
+    }
+  </style>
+  <script>
+    function toggleAdditionalInfo(productId) {
+      const infoDiv = document.getElementById(`additional-info-${productId}`);
+      if (infoDiv) { 
+        if (infoDiv.style.display === "none" || infoDiv.style.display === "") {
+          infoDiv.style.display = "block";
+        } else {
+          infoDiv.style.display = "none";
+        }
+      } else {
+        console.error(`Element with ID additional-info-${productId} not found.`);
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Header Section -->
+  <header>
+    <div class="container">
+      <h1>Welcome to Glopak Ambalaj</h1>
+      <p>Your Trusted Partner in Packaging Solutions</p>
+    </div>
+  </header>
+
+  <!-- Navigation Bar -->
+  <nav>
+    <a href="/information">Information</a>
+    <a href="/dms">Direct Messages</a>
+    <a href="/products">Products</a>
+    <% if (user && user.role === 'admin') { %>
+      <a href="/user-data">User Data</a>
+    <% } %>
+  </nav>
+
+
+  <div class="container">
+    <% if (typeof error !== 'undefined' && error) { %>
+      <p class="error"><%= error %></p>
+    <% } else { %>
+      <div class="survey-section">
+        <h2>Supplier Survey</h2>
+        <form action="/suppliersurvey" method="POST">
+          <% products.forEach(product => { %>
+            <div class="product-item">
+              <div class="product-name"><%= product.name %></div>
+              <button type="button" class="supply-button" data-product-id="<%= product.id %>" onclick="toggleAdditionalInfo(this.dataset.productId)">Yes, I supply this product</button>
+              
+              <div class="additional-info" id="additional-info-<%= product.id %>">
+                <label for="delivery_days_<%= product.id %>">Number of Days to Deliver:</label>
+                <input type="number" id="delivery_days_<%= product.id %>" name="delivery_days_<%= product.id %>" min="1" required>
+
+        
+                <label for="price_per_unit_<%= product.id %>">Price per Unit (USD):</label>
+                <input type="number" id="price_per_unit_<%= product.id %>" name="price_per_unit_<%= product.id %>" step="0.001" min="0" required>
+
+                <label for="quality_<%= product.id %>">Quality of Product (Out of 10):</label>
+                <input type="range" id="quality_<%= product.id %>" name="quality_<%= product.id %>" min="0" max="10" step="1" value="5" oninput="document.getElementById('qualityValue_<%= product.id %>').innerText = this.value;">
+                <div class="slider-value">Value: <span id="qualityValue_<%= product.id %>">5</span>/10</div>
+              </div>
+            </div>
+          <% }) %>
+          <button type="submit" class="submit-button">Submit Survey</button>
+        </form>
+      </div>
+    <% } %>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>&copy; <%= new Date().getFullYear() %> Glopak Ambalaj - All Rights Reserved</p>
+    </div>
+  </footer>
+
+</body>
+</html>
+

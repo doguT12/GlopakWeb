@@ -606,5 +606,127 @@ router.post('/customersurvey', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+/**
+ * GET /suppliersurvey
+ * Render the Supplier Survey form. Accessible to suppliers and admins.
+ */
+router.get('/suppliersurvey', async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).send('Unauthorized. Please log in.');
+  }
+
+  try {
+    const user = await User.findByPk(req.session.userId);
+
+    if (user && (user.role === 'supplier' || user.role === 'admin')) {
+      const products = await Product.findAll({
+        order: [['name', 'ASC']],
+      });
+      res.render('suppliersurvey', { user, products, error: null });
+    } else {
+      res.status(403).send('Access denied. Suppliers and admins only.');
+    }
+  } catch (err) {
+    console.error('Error fetching supplier survey:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+router.post('/suppliersurvey', async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).send('Unauthorized. Please log in.');
+  }
+
+  try {
+    const user = await User.findByPk(req.session.userId);
+
+    if (user && (user.role === 'supplier' || user.role === 'admin')) {
+      const products = await Product.findAll();
+
+      for (let product of products) {
+        const delivery_days = req.body[`delivery_days_${product.id}`];
+        const price_per_unit = req.body[`price_per_unit_${product.id}`];
+        const quality = req.body[`quality_${product.id}`];
+
+        if (delivery_days && price_per_unit && quality) {
+          const deliveryDaysInt = parseInt(delivery_days, 10);
+          const pricePerUnitFloat = parseFloat(price_per_unit);
+          const qualityInt = parseInt(quality, 10);
+
+          if (
+            isNaN(deliveryDaysInt) || deliveryDaysInt < 1 ||
+            isNaN(pricePerUnitFloat) || pricePerUnitFloat < 0 ||
+            isNaN(qualityInt) || qualityInt < 0 || qualityInt > 10
+          ) {
+            return res.render('suppliersurvey', { user, products, error: 'Please provide valid inputs for all supplied products.' });
+          }
+
+          await SupplierProduct.upsert({
+            username: user.username,
+            productId: product.id,
+            delivery_days: deliveryDaysInt,
+            price_per_unit: pricePerUnitFloat,
+            quality: qualityInt,
+          });
+        }
+      }
+
+      res.send(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Thank You</title>
+          <style>
+            body {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background-color: #f4f4f4;
+              font-family: Arial, sans-serif;
+              text-align: center;
+            }
+            .message-box {
+              background-color: #ffffff;
+              padding: 40px;
+              border-radius: 8px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            .message-box h1 {
+              color: #2980b9;
+            }
+            .message-box p {
+              color: #555555;
+              margin-top: 20px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="message-box">
+            <h1>Thank You!</h1>
+            <p>Your supplier survey has been submitted successfully.</p>
+            <p>You will be redirected to the Products page shortly.</p>
+          </div>
+          <script>
+            // Redirect after 3 seconds (3000 milliseconds)
+            setTimeout(() => {
+              window.location.href = '/products';
+            }, 3000);
+          </script>
+        </body>
+        </html>
+      `);
+    } else {
+      res.status(403).send('Access denied. Suppliers and admins only.');
+    }
+  } catch (err) {
+    console.error('Error handling supplier survey submission:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
 module.exports = router;
 
