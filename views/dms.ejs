@@ -117,7 +117,7 @@
       background-color: #2980b9;
     }
 
-    /* Button for messaging support (admin) */
+    
     .support-button {
       background-color: #e74c3c;
       color: white;
@@ -145,30 +145,30 @@
   </style>
   
   <script>
-    // Function to automatically fill 'admin' into the search bar and submit the form
+   
     function messageSupport() {
-      document.getElementById('username').value = 'admin';  // Fill in 'admin'
-      document.getElementById('searchForm').submit();       // Submit the form automatically
+      document.getElementById('username').value = 'admin';  
+      document.getElementById('searchForm').submit();       
     }
   </script>
 </head>
 <body>
 
-  <!-- Header Section -->
+ 
   <header>
     <div class="container">
       <h1>Direct Messages</h1>
     </div>
   </header>
 
-  <!-- Navigation Bar -->
+  
   <nav>
     <a href="/dashboard">Back to Dashboard</a>
     <a href="/information">Information</a>
     <a href="/products">Products</a>
   </nav>
 
-  <!-- DM List -->
+
   <div class="container">
     <div class="dm-list">
       <h2>Your Open Conversations</h2>
@@ -185,7 +185,7 @@
       <% } %>
     </div>
 
-    <!-- Search for Users -->
+   
     <div class="search-form">
       <h2>Start a New Conversation</h2>
       <form id="searchForm" action="/dms/new" method="POST">
@@ -195,11 +195,11 @@
       </form>
     </div>
 
-    <!-- Message Support (Admin) Button -->
+   
     <button class="support-button" onclick="messageSupport()">Message Support</button>
   </div>
 
-  <!-- Footer Section -->
+ 
   <footer>
     <div class="container">
       <p>&copy; <%= new Date().getFullYear() %> Glopak Ambalaj - All Rights Reserved</p>

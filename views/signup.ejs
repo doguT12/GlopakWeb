@@ -2,16 +2,16 @@
 <html>
 <head>
   <title>Sign Up</title>
-  <link rel="stylesheet" href="/styles.css"> <!-- Link to your CSS -->
+  <link rel="stylesheet" href="/styles.css"> 
   <script>
     function validateForm() {
       const password = document.getElementById('password').value;
       const repeatPassword = document.getElementById('repeat_password').value;
       if (password !== repeatPassword) {
         alert('Passwords do not match.');
-        return false; // Prevent form submission
+        return false; 
       }
-      return true; // Allow form submission
+      return true;
     }
   </script>
 </head>
@@ -24,19 +24,15 @@
     <% } %>
     
     <form action="/signup" method="POST" onsubmit="return validateForm()">
-      <!-- Username Field -->
       <label for="username">Username:</label>
-      <input type="text" id="username" name="username" required />
-      
-      <!-- Password Field -->
+      <input type="text" id="username" name="username" required /> 
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required />
       
-      <!-- Repeat Password Field -->
       <label for="repeat_password">Repeat Password:</label>
       <input type="password" id="repeat_password" name="repeat_password" required />
       
-      <!-- Security Question Selection -->
+    
       <label for="security_question_id">Security Question:</label>
       <select id="security_question_id" name="security_question_id" required>
         <option value="" disabled selected>Select a security question</option>
@@ -47,19 +43,17 @@
         <option value="5">What was the name of your first school?</option>
       </select>
       
-      <!-- Security Answer Field -->
+     
       <label for="security_answer">Security Answer:</label>
       <input type="text" id="security_answer" name="security_answer" required />
       
-      <!-- **Role Selection Field** -->
+
       <label for="role">Role:</label>
       <select id="role" name="role" required>
         <option value="" disabled selected>Select your role</option>
         <option value="customer">Customer</option>
         <option value="supplier">Supplier</option>
       </select>
-      
-      <!-- Submit Button -->
       <button type="submit">Sign Up</button>
     </form>
     

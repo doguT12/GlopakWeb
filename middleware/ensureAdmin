@@ -3,7 +3,7 @@ function ensureAdmin(req, res, next) {
     User.findByPk(req.session.userId)
       .then(user => {
         if (user && user.role === 'admin') {
-          next(); // If user is an admin, allow access, this isnt used yet but for future proof
+          next(); // If user is an admin, allow access, this is used in the search locationa and the products
         } else {
           res.status(403).send('Access denied. Admins only.');
         }

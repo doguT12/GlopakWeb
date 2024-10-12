@@ -12,13 +12,13 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Use body parser
+//body parser
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// Set up static folder
+// static folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Configure session middleware
+// Configuremiddleware
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -27,14 +27,13 @@ app.use(
   })
 );
 
-// Import routes
+// 'mport routes
 const authRoutes = require('./routes/auth');
 app.use('/', authRoutes);
 
-// **Ensure correct import of User model**
-const { sequelize, User } = require('./models'); // Add this line to import the User model
+const { sequelize, User } = require('./models');
 
-// Function to create admin user using environment variables
+//create admin
 async function createAdminUser() {
   try {
     const adminExists = await User.findOne({ where: { username: 'admin' } });
@@ -45,9 +44,9 @@ async function createAdminUser() {
       await User.create({
         username: 'admin',
         password: hashedPassword,
-        role: 'admin', // Assign the hidden admin role
-        security_question_id: 1, // Default security question
-        security_answer: hashedSecurityAnswer // Hashed security answer from env
+        role: 'admin',
+        security_question_id: 1, //default security q
+        security_answer: hashedSecurityAnswer 
       });
 
       console.log('Admin user created successfully.');
@@ -60,10 +59,10 @@ async function createAdminUser() {
 }
 
 // Sync database and start server
-sequelize.sync({ force: false }) // Ensure it doesn't drop tables in production
+sequelize.sync({ force: false }) // CHANGE TO TRUE IF ISSUES ARISE
   .then(async () => {
     console.log('Database synced successfully.');
-    await createAdminUser(); // Call the function to create the admin user
+    await createAdminUser(); //call create admin
 
     app.listen(3000, () => {
       console.log('Server is running on http://localhost:3000');
@@ -73,7 +72,7 @@ sequelize.sync({ force: false }) // Ensure it doesn't drop tables in production
     console.error('Error syncing database:', err);
   });
 
-// Handle 404 - Keep this as the last route
+// Handle 404
 app.use((req, res, next) => {
   res.status(404).render('404');
 });

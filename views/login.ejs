@@ -4,7 +4,7 @@
 <html>
 <head>
   <title>Login</title>
-  <link rel="stylesheet" href="/styles.css"> <!-- Link to your CSS -->
+  <link rel="stylesheet" href="/styles.css"> 
 </head>
 <body>
   <div class="container">
@@ -15,19 +15,16 @@
     <% } %>
     
     <form action="/login" method="POST">
-      <!-- Username Field -->
+    
       <label for="username">Username:</label>
       <input type="text" id="username" name="username" required />
       
-      <!-- Password Field -->
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required />
       
-      <!-- Submit Button -->
       <button type="submit">Login</button>
     </form>
     
-    <!-- Forgot Password Button -->
     <form action="/changepassword" method="GET">
       <button type="submit" class="forgot-password-button">Forgot Password?</button>
     </form>

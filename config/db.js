@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
-// 'nitialize Sequelize with SQLite
+// Initialize Sequelize with SQLite
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: './database.sqlite', // Database file location

@@ -1,4 +1,4 @@
-// routes/auth.js
+
 
 const express = require('express');
 const router = express.Router();
@@ -22,12 +22,12 @@ router.get('/signup', (req, res) => {
 router.post('/signup', async (req, res) => {
   const { username, password, repeat_password, security_question_id, security_answer, role } = req.body;
 
-  // Validate that passwords match
+  // Validate passwords 
   if (password !== repeat_password) {
     return res.render('signup', { error: 'Passwords do not match.', securityQuestions });
   }
 
-  // Validate that security_question_id is an integer between 1 and 5
+  //security_question_id is between 1 and 5
   const questionId = parseInt(security_question_id, 10);
   if (isNaN(questionId) || questionId < 1 || questionId > 5) {
     return res.render('signup', { error: 'Invalid security question selected.', securityQuestions });
@@ -45,17 +45,17 @@ router.post('/signup', async (req, res) => {
       return res.render('signup', { error: 'Username already taken.', securityQuestions });
     }
 
-    // Hash password and security answer
+    // Hash
     const hashedPassword = await bcrypt.hash(password, 10);
     const hashedSecurityAnswer = await bcrypt.hash(security_answer, 10);
 
-    // Create new user with role and security question
+    // Create new user
     await User.create({
       username,
       password: hashedPassword,
       security_question_id: questionId,
-      security_answer: hashedSecurityAnswer, // Hashed for security
-      role, // **Include role here**
+      security_answer: hashedSecurityAnswer, 
+      role, 
     });
 
     res.redirect('/login');
@@ -75,7 +75,6 @@ router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    // Find user
     const user = await User.findOne({ where: { username } });
     if (!user) {
       return res.render('login', { error: 'Invalid username or password.' });
@@ -87,7 +86,7 @@ router.post('/login', async (req, res) => {
       return res.render('login', { error: 'Invalid username or password.' });
     }
 
-    // Save user ID in session
+    // Save user ID and username
     req.session.userId = user.id;
     req.session.username = user.username;
     res.redirect('/dashboard');
@@ -98,14 +97,14 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// GET Dashboard (Protected Route)
+// GET Dashboard
 router.get('/dashboard', async (req, res) => {
   if (!req.session.userId) {
     return res.redirect('/login');
   }
 
   try {
-    // Retrieve user information
+    // Retrieve data
     const user = await User.findByPk(req.session.userId);
     if (!user) {
       return res.redirect('/login');
@@ -118,7 +117,7 @@ router.get('/dashboard', async (req, res) => {
   }
 });
 
-// GET Change Password Page
+// GET Change Password
 router.get('/changepassword', (req, res) => {
   try {
     res.render('changepassword', { securityQuestions });
@@ -137,7 +136,7 @@ router.post('/changepassword', async (req, res) => {
     return res.render('changepassword', { error: 'New passwords do not match.', securityQuestions });
   }
 
-  // Validate that security_question_id is an integer between 1 and 5
+  // Validate that security_question_id is between 1 and 5
   const questionId = parseInt(security_question_id, 10);
   if (isNaN(questionId) || questionId < 1 || questionId > 5) {
     return res.render('changepassword', { error: 'Invalid security question selected.', securityQuestions });
@@ -156,7 +155,7 @@ router.post('/changepassword', async (req, res) => {
       return res.render('changepassword', { error: 'Username and security question do not match.', securityQuestions });
     }
 
-    // Compare hashed security answer
+    // Compare security answer
     const match = await bcrypt.compare(security_answer, user.security_answer);
     if (!match) {
       return res.render('changepassword', { error: 'Security answer is incorrect.', securityQuestions });
@@ -194,14 +193,14 @@ router.get('/information', (req, res) => {
 
 // CHAt
 
-// Display the Direct Messages page with open chats
+// GET DM
 router.get('/dms', async (req, res) => {
   if (!req.session.username) {
     return res.redirect('/login');
   }
 
   try {
-    // Find chats where the user is either user1 or user2
+    // find chats where the user is either user1 or user2
     const userChats = await Chat.findAll({
       where: {
         [Op.or]: [
@@ -211,7 +210,7 @@ router.get('/dms', async (req, res) => {
       }
     });
 
-    // Map over the chats and determine the other user's info to display
+    // Map over the chats 
     const dms = userChats.map(chat => {
       const otherUsername = chat.user1_username === req.session.username ? chat.user2_username : chat.user1_username;
       return {
@@ -225,12 +224,12 @@ router.get('/dms', async (req, res) => {
     res.render('dms', { dms: [], error: 'Error loading direct messages.' });
   }
 });
-
+// POST NEW DM
 router.post('/dms/new', async (req, res) => {
   const { username } = req.body;
 
   try {
-    // Ensure req.session.username is defined (logged-in user's username)
+    // Ensure req.session.username is defined
     if (!req.session.username) {
       return res.redirect('/login');  // Redirect if user is not logged in
     }
@@ -238,7 +237,8 @@ router.post('/dms/new', async (req, res) => {
     // Find the other user by their username
     const otherUser = await User.findOne({ where: { username } });
 
-    // Check if otherUser exists and if the user is not trying to message themselves
+    //check if otherUser exists
+    //check  if the user is not trying to message themselves
     if (otherUser && otherUser.username !== req.session.username) {
       // Check if a chat already exists between the two users
       const existingChat = await Chat.findOne({
@@ -251,7 +251,7 @@ router.post('/dms/new', async (req, res) => {
       });
 
       if (existingChat) {
-        return res.redirect(`/dms/${otherUser.username}`);  // Redirect to the existing chat
+        return res.redirect(`/dms/${otherUser.username}`);  
       }
 
       // If no existing chat, create a new one
@@ -260,10 +260,10 @@ router.post('/dms/new', async (req, res) => {
         user2_username: otherUser.username
       });
 
-      // Redirect to the newly created chat
+      // Redirect to the new chat
       res.redirect(`/dms/${otherUser.username}`);
     } else {
-      // If user not found or trying to message themselves
+      // If user not found or if user trying to message themselves
       res.render('dms', { dms: [], error: 'User not found or you cannot message yourself.' });
     }
   } catch (err) {
@@ -271,12 +271,12 @@ router.post('/dms/new', async (req, res) => {
     res.render('dms', { dms: [], error: 'Error starting new conversation.' });
   }
 });
-// Show messages for a specific chat (based on usernames)
+// GET DM other user
 router.get('/dms/:otherUsername', async (req, res) => {
   const { otherUsername } = req.params;
 
   try {
-    // Check if the chat exists between the current user and the other user
+    // Check if the chat exists 
     const chat = await Chat.findOne({
       where: {
         [Op.or]: [
@@ -290,7 +290,7 @@ router.get('/dms/:otherUsername', async (req, res) => {
       return res.redirect('/dms');
     }
 
-    // Fetch messages for this chat
+    // Fetch messages
     const messages = await Message.findAll({
       where: {
         chat_username1: chat.user1_username,
@@ -310,13 +310,13 @@ router.get('/dms/:otherUsername', async (req, res) => {
   }
 });
 
-// Send a new message in the chat (based on usernames)
+// POST DM
 router.post('/dms/:otherUsername', async (req, res) => {
   const { otherUsername } = req.params;
   const { message } = req.body;
 
   try {
-    // Check if the chat exists between the current user and the other user
+    // Check if the chat exists
     const chat = await Chat.findOne({
       where: {
         [Op.or]: [

@@ -1,11 +1,11 @@
-/* General Styles */
+
 body, html {
     height: 100%;
     margin: 0;
     font-family: Arial, sans-serif;
   }
   
-  /* Centering Container */
+  
   .container {
     display: flex;
     flex-direction: column;
@@ -14,7 +14,6 @@ body, html {
     height: 100%;
   }
   
-  /* Form Styling */
   form {
     display: flex;
     flex-direction: column;
@@ -42,7 +41,6 @@ body, html {
     background-color: #45a049;
   }
   
-  /* Error Message Styling */
   .error {
     color: red;
   }

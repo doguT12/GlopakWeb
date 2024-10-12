@@ -20,13 +20,13 @@ module.exports = (sequelize) => {
       type: DataTypes.ENUM('customer', 'supplier', 'admin'),
       allowNull: false,
     },
-    security_question_id: { // Changed Field
+    security_question_id: { 
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         isInt: true,
         min: 1,
-        max: 5, // amount of questions
+        max: 5, 
       },
     },
     security_answer: {
