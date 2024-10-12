@@ -1,4 +1,3 @@
-// models/product.js
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
@@ -22,7 +21,7 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        isUrl: true, // Ensures the image field contains a valid URL
+        isUrl: true,
       },
     },
   }, {

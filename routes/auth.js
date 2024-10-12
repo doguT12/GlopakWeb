@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const { User, Chat, Message, Product} = require('../models'); // Import User model
 const securityQuestions = require('../config/securityQuestions'); // Import security questions from config
 const { Op } = require('sequelize');  // Import Sequelize operators
+const ensureAdmin = require('../middleware/ensureAdmin');
 
 const allowedRoles = ['customer', 'supplier'];
 // GET Signup Page
@@ -351,24 +352,151 @@ router.get('/products', async (req, res) => {
     });
     console.log('Fetched Products:', products);
     
-    // Fetch the current user if logged in
     let user = null;
     if (req.session.userId) {
       user = await User.findByPk(req.session.userId);
     }
     
-    // Always pass 'error', set to null if no error
     res.render('products', { products, user, error: null });
   } catch (err) {
     console.error('Error fetching products:', err);
     
-    // Fetch the current user if logged in
+    // Fetch the current user
     let user = null;
     if (req.session.userId) {
       user = await User.findByPk(req.session.userId);
     }
     
     res.render('products', { error: 'Error fetching products.', products: [], user });
+  }
+});
+
+
+router.get('/products', async (req, res) => {
+  try {
+    const products = await Product.findAll({
+      order: [['createdAt', 'DESC']],
+    });
+    console.log('Fetched Products:', products);
+
+    // Fetch the current user if logged in
+    let user = null;
+    if (req.session.userId) {
+      user = await User.findByPk(req.session.userId);
+    }
+
+    // Always pass 'error', set to null if no error
+    res.render('products', { products, user, error: null });
+  } catch (err) {
+    console.error('Error fetching products:', err);
+
+    // Fetch the current user if logged in
+    let user = null;
+    if (req.session.userId) {
+      user = await User.findByPk(req.session.userId);
+    }
+
+    res.render('products', { error: 'Error fetching products.', products: [], user });
+  }
+});
+
+//GET ADD PRODUCT
+router.get('/addproduct', ensureAdmin, (req, res) => {
+  User.findByPk(req.session.userId)
+    .then(user => {
+      res.render('addproduct', { user, error: null });
+    })
+    .catch(err => {
+      console.error('Error fetching user for addproduct:', err);
+      res.status(500).send('Internal Server Error');
+    });
+});
+
+//POST ADD PRODUCT
+router.post('/addproduct', ensureAdmin, async (req, res) => {
+  const { name, description, image } = req.body;
+
+  try {
+    if (!name || !description || !image) {
+      return res.render('addproduct', { error: 'All fields are required.', user: await User.findByPk(req.session.userId) });
+    }
+
+    // Create the product
+    await Product.create({ name, description, image });
+    console.log(`Product "${name}" added successfully.`);
+
+    res.redirect('/products');
+  } catch (err) {
+    console.error('Error adding product:', err);
+    res.render('addproduct', { error: 'Error adding product. Please try again.', user: await User.findByPk(req.session.userId) });
+  }
+});
+
+// GET EDIT PRODUCT
+router.get('/editproduct/:id', ensureAdmin, async (req, res) => {
+  const productId = req.params.id;
+
+  try {
+    const product = await Product.findByPk(productId);
+    if (!product) {
+      return res.status(404).send('Product not found.');
+    }
+
+    // Fetch the current user
+    const user = await User.findByPk(req.session.userId);
+
+    res.render('editproduct', { product, user, error: null });
+  } catch (err) {
+    console.error('Error fetching product for editing:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+//POST EDIT PRODUCT
+router.post('/editproduct/:id', ensureAdmin, async (req, res) => {
+  const productId = req.params.id;
+  const { name, description, image } = req.body;
+
+  try {
+    const product = await Product.findByPk(productId);
+    if (!product) {
+      return res.status(404).send('Product not found.');
+    }
+
+    // Update the product details
+    product.name = name || product.name;
+    product.description = description || product.description;
+    product.image = image || product.image;
+
+    await product.save();
+    console.log(`Product "${product.name}" updated successfully.`);
+
+    res.redirect('/products');
+  } catch (err) {
+    console.error('Error updating product:', err);
+    // Fetch the current user
+    const user = await User.findByPk(req.session.userId);
+    res.render('editproduct', { product, user, error: 'Error updating product. Please try again.' });
+  }
+});
+
+//POST REMOVE PRODUCT
+router.post('/removeproduct/:id', ensureAdmin, async (req, res) => {
+  const productId = req.params.id;
+
+  try {
+    const product = await Product.findByPk(productId);
+    if (!product) {
+      return res.status(404).send('Product not found.');
+    }
+
+    await product.destroy();
+    console.log(`Product "${product.name}" removed successfully.`);
+
+    res.redirect('/products');
+  } catch (err) {
+    console.error('Error removing product:', err);
+    res.status(500).send('Internal Server Error');
   }
 });
 module.exports = router;

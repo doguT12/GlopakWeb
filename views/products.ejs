@@ -1,4 +1,3 @@
-<!-- views/products.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +6,7 @@
   <title>Glopak Ambalaj - Products</title>
   <link rel="stylesheet" href="/styles.css">
   <style>
-    /* Global Styles (Inherited from dashboard and information pages) */
+  
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
@@ -65,8 +64,6 @@
       color: #ecf0f1;
       margin-top: 20px;
     }
-
-    /* Products Page Specific Styles */
     .products-section {
       margin-top: 20px;
       background-color: #ffffff;
@@ -177,7 +174,6 @@
       background-color: #a93226;
     }
 
-    /* Responsive Design */
     @media (max-width: 768px) {
       .product-card {
         width: 100%;
@@ -188,7 +184,7 @@
 </head>
 <body>
 
-  <!-- Header Section -->
+
   <header>
     <div class="container">
       <h1>Welcome to Glopak Ambalaj</h1>
@@ -196,17 +192,15 @@
     </div>
   </header>
 
-  <!-- Navigation Bar -->
   <nav>
     <a href="/information">Information</a>
     <a href="/dms">Direct Messages</a>
-    <a href="/products">Products</a>
+    <a href="/dashboard">Dashboard</a>
     <% if (user && user.role === 'admin') { %>
       <a href="/user-data">User Data</a>
     <% } %>
   </nav>
 
-  <!-- Main Content Container -->
   <div class="container">
     <% if (typeof error !== 'undefined' && error) { %>
       <p class="error"><%= error %></p>
@@ -241,7 +235,6 @@
     <% } %>
   </div>
 
-  <!-- Footer Section -->
   <footer>
     <div class="container">
       <p>&copy; <%= new Date().getFullYear() %> Glopak Ambalaj - All Rights Reserved</p>
