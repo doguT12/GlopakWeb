@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Order Data - Glopak Ambalaj</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    header, footer {
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      padding: 20px 0;
+      text-align: center;
+    }
+    header h1, footer p {
+      margin: 0;
+    }
+    nav {
+      background-color: #34495e;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 10px;
+    }
+    nav a {
+      color: #ecf0f1;
+      text-decoration: none;
+      padding: 10px 15px;
+      font-weight: bold;
+      margin: 5px;
+    }
+    nav a:hover {
+      background-color: #2980b9;
+    }
+    .container {
+      width: 90%;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .error {
+      color: red;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    table th {
+      background-color: #34495e;
+      color: #ecf0f1;
+    }
+    table th a {
+      color: #ecf0f1;
+      text-decoration: none;
+      display: block;
+    }
+    table th a:hover {
+      text-decoration: underline;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>Glopak Ambalaj - Admin Order Data</h1>
+  </div>
+</header>
+
+<nav>
+  <a href="/information">Information</a>
+  <a href="/dms">Direct Messages</a>
+  <a href="/products">Products</a>
+  <% if (user && user.role === 'admin') { %>
+    <a href="/order-data">Order Data</a>
+  <% } %>
+</nav>
+
+<div class="container">
+  <% if (error) { %>
+    <p class="error"><%= error %></p>
+  <% } %>
+
+  <h2>All Orders</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th><a href="?sortField=id&sortOrder=<%= sortField === 'id' && sortOrder === 'ASC' ? 'DESC' : 'ASC' %>">Order ID</a></th>
+        <th><a href="?sortField=customer.username&sortOrder=<%= sortField === 'customer.username' && sortOrder === 'ASC' ? 'DESC' : 'ASC' %>">Customer Username</a></th>
+        <th><a href="?sortField=Product.name&sortOrder=<%= sortField === 'Product.name' && sortOrder === 'ASC' ? 'DESC' : 'ASC' %>">Product Name</a></th>
+        <th><a href="?sortField=quantity&sortOrder=<%= sortField === 'quantity' && sortOrder === 'ASC' ? 'DESC' : 'ASC' %>">Quantity</a></th>
+        <th><a href="?sortField=supplier.username&sortOrder=<%= sortField === 'supplier.username' && sortOrder === 'ASC' ? 'DESC' : 'ASC' %>">Supplier Username</a></th>
+        <th><a href="?sortField=totalPrice&sortOrder=<%= sortField === 'totalPrice' && sortOrder === 'ASC' ? 'DESC' : 'ASC' %>">Total Price</a></th>
+        <th><a href="?sortField=deliveryDate&sortOrder=<%= sortField === 'deliveryDate' && sortOrder === 'ASC' ? 'DESC' : 'ASC' %>">Delivery Date</a></th>
+        <th><a href="?sortField=createdAt&sortOrder=<%= sortField === 'createdAt' && sortOrder === 'ASC' ? 'DESC' : 'ASC' %>">Order Date</a></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% orders.forEach(order => { %>
+        <tr>
+          <td><%= order.id %></td>
+          <td><%= order.customer ? order.customer.username : 'Unknown' %></td>
+          <td><%= order.Product ? order.Product.name : 'Unknown' %></td>
+          <td><%= order.quantity %></td>
+          <td><%= order.supplier ? order.supplier.username : 'Unknown' %></td>
+          <td>$<%= parseFloat(order.totalPrice).toFixed(2) %></td>
+          <td><%= order.deliveryDate.toISOString().split('T')[0] %></td>
+          <td><%= order.createdAt.toISOString().split('T')[0] %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<footer>
+  <div class="container">
+    <p>&copy; <%= new Date().getFullYear() %> Glopak Ambalaj - All Rights Reserved</p>
+  </div>
+</footer>
+
+</body>
+</html>

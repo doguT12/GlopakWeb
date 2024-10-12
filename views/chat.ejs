@@ -67,7 +67,6 @@
       overflow: hidden; 
     }
 
-    /* Chat messages section */
     .chat-messages {
       background-color: #ffffff;
       padding: 20px;
@@ -102,7 +101,6 @@
       margin-top: 5px;
     }
 
-    /* Message input form container */
     .message-form-container {
       display: flex;
       justify-content: center; 
@@ -110,7 +108,7 @@
       flex-shrink: 0;
     }
 
-    /* Form styling */
+
     form {
       display: flex;
       width: 60%; 
@@ -151,7 +149,6 @@
       background-color: #2980b9;
     }
 
-    /* Footer styling */
     footer {
       text-align: center;
       padding: 20px;
@@ -185,16 +182,13 @@
     </div>
   </header>
 
-  <!-- Navigation Bar -->
   <nav>
     <a href="/dashboard">Back to Dashboard</a>
     <a href="/information">Information</a>
     <a href="/products">Products</a>
   </nav>
 
-  <!-- Main Content -->
   <div class="main-container">
-    <!-- Chat Messages -->
     <div class="chat-messages" id="chat-messages">
       <% messages.forEach(function(message) { %>
         <div class="message <%= message.sender_username === currentUsername ? 'sent' : 'received' %>">
@@ -204,7 +198,6 @@
       <% }); %>
     </div>
 
-    <!-- new message -->
     <div class="message-form-container">
       <form action="/dms/<%= otherUsername %>" method="POST">
         <textarea name="message" placeholder="Type your message..." required></textarea>

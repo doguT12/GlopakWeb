@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { User, Chat, Message, Product, CustomerSurvey, SupplierProduct} = require('../models'); // Import User model
+const { User, Chat, Message, Product, CustomerSurvey, SupplierProduct, Order} = require('../models'); // Import User model
 const securityQuestions = require('../config/securityQuestions'); // Import security questions from config
 const { Op } = require('sequelize');  // Import Sequelize operators
 const ensureAdmin = require('../middleware/ensureAdmin');
@@ -709,6 +709,327 @@ router.post('/suppliersurvey', async (req, res) => {
   }
 });
 
+// Middleware to ensure the user is a customer or admin
+function ensureCustomerOrAdmin(req, res, next) {
+  if (req.session.userId) {
+    User.findByPk(req.session.userId)
+      .then(user => {
+        if (user && (user.role === 'customer' || user.role === 'admin')) {
+          req.user = user;
+          next();
+        } else {
+          res.status(403).send('Access denied. Customers and admins only.');
+        }
+      })
+      .catch(err => {
+        console.error('Error in ensureCustomerOrAdmin:', err);
+        res.status(500).send('Internal Server Error');
+      });
+  } else {
+    res.redirect('/login');
+  }
+}
+
+router.get('/orders', ensureCustomerOrAdmin, async (req, res) => {
+  try {
+    const products = await Product.findAll({
+      order: [['name', 'ASC']],
+    });
+
+    // Fetch customer survey data
+    let survey = await CustomerSurvey.findOne({
+      where: { username: req.user.username },
+      order: [['createdAt', 'DESC']],
+    });
+
+    // If no survey exists, use default values
+    if (!survey) {
+      survey = {
+        speed: 10,
+        cost: 10,
+        quality: 10,
+      };
+    }
+
+    // Calculate total weight
+    const totalWeight = survey.speed + survey.cost + survey.quality;
+
+    // Calculate weights
+    const w_speed = survey.speed / totalWeight;
+    const w_cost = survey.cost / totalWeight;
+    const w_quality = survey.quality / totalWeight;
+
+    const recommendedSuppliers = {};
+    const bestPrices = {};
+    const supplierData = {};
+
+    for (let product of products) {
+      // Get all suppliers for this product
+      const supplierProducts = await SupplierProduct.findAll({
+        where: { productId: product.id },
+      });
+
+      if (supplierProducts.length === 0) {
+        continue;
+      }
+
+      // Collect supplier data for the dropdown
+      supplierData[product.id] = supplierProducts.map(sp => ({
+        username: sp.username,
+        price_per_unit: sp.price_per_unit,
+        quality: sp.quality,
+        delivery_days: sp.delivery_days,
+      }));
+
+      // Best Price Calculation
+      const bestPriceSupplier = supplierProducts.reduce((min, sp) =>
+        parseFloat(sp.price_per_unit) < parseFloat(min.price_per_unit) ? sp : min
+      );
+
+      bestPrices[product.id] = {
+        supplierUsername: bestPriceSupplier.username,
+        price_per_unit: bestPriceSupplier.price_per_unit,
+      };
+
+      // Find min and max values for normalization
+      const deliveryDaysArray = supplierProducts.map((sp) => sp.delivery_days);
+      const priceArray = supplierProducts.map((sp) => parseFloat(sp.price_per_unit));
+      const qualityArray = supplierProducts.map((sp) => sp.quality);
+
+      const minDeliveryDays = Math.min(...deliveryDaysArray);
+      const maxDeliveryDays = Math.max(...deliveryDaysArray);
+
+      const minPrice = Math.min(...priceArray);
+      const maxPrice = Math.max(...priceArray);
+
+      const minQuality = Math.min(...qualityArray);
+      const maxQuality = Math.max(...qualityArray);
+
+      // Handle cases where min and max are equal to avoid division by zero
+      const deliveryDaysRange = maxDeliveryDays - minDeliveryDays || 1;
+      const priceRange = maxPrice - minPrice || 1;
+      const qualityRange = maxQuality - minQuality || 1;
+
+      // Calculate scores for each supplier
+      const supplierScores = [];
+
+      for (let sp of supplierProducts) {
+        // Normalize supplier data
+        const speedScore = (maxDeliveryDays - sp.delivery_days) / deliveryDaysRange;
+        const costScore = (maxPrice - parseFloat(sp.price_per_unit)) / priceRange;
+        const qualityScore = (sp.quality - minQuality) / qualityRange;
+
+        // Compute weighted score
+        const supplierScore =
+          w_speed * speedScore + w_cost * costScore + w_quality * qualityScore;
+
+        supplierScores.push({
+          supplierUsername: sp.username,
+          price_per_unit: sp.price_per_unit,
+          supplierScore,
+        });
+      }
+
+      // Find the supplier with the highest score
+      const bestSupplier = supplierScores.reduce((max, supplier) =>
+        supplier.supplierScore > max.supplierScore ? supplier : max
+      );
+
+      // Normalize the supplier score to a percentage
+      const totalScores = supplierScores.reduce(
+        (sum, supplier) => sum + supplier.supplierScore,
+        0
+      );
+      const percentRecommendation = ((bestSupplier.supplierScore / totalScores) * 100).toFixed(2);
+
+      recommendedSuppliers[product.id] = {
+        supplierUsername: bestSupplier.supplierUsername,
+        price_per_unit: bestSupplier.price_per_unit,
+        percentRecommendation,
+      };
+    }
+
+    res.render('orders', {
+      user: req.user,
+      products,
+      recommendedSuppliers,
+      bestPrices,
+      supplierData,
+      error: null,
+    });
+  } catch (err) {
+    console.error('Error fetching orders page:', err);
+    res.render('orders', {
+      error: 'Error fetching orders page.',
+      products: [],
+      recommendedSuppliers: {},
+      bestPrices: {},
+      supplierData: {},
+      user: req.user,
+    });
+  }
+});
+
+// POST /orders
+router.post('/orders', ensureCustomerOrAdmin, async (req, res) => {
+  const { quantities, suppliers } = req.body;
+
+  try {
+    if (!quantities || Object.keys(quantities).length === 0) {
+      return res.redirect('/orders');
+    }
+
+    for (const [productId, quantity] of Object.entries(quantities)) {
+      const qty = parseInt(quantity, 10);
+      if (isNaN(qty) || qty <= 0) continue;
+
+      const product = await Product.findByPk(productId);
+      if (!product) continue;
+
+      const selectedSupplierUsername = suppliers[productId];
+      if (!selectedSupplierUsername) continue;
+
+      const supplierProduct = await SupplierProduct.findOne({
+        where: { productId, username: selectedSupplierUsername },
+      });
+
+      if (!supplierProduct) continue;
+
+      const totalPrice = supplierProduct.price_per_unit * qty;
+
+      const deliveryDate = new Date();
+      deliveryDate.setDate(deliveryDate.getDate() + supplierProduct.delivery_days);
+
+      await Order.create({
+        customerUsername: req.user.username,
+        productId: product.id,
+        quantity: qty,
+        supplierUsername: supplierProduct.username,
+        totalPrice,
+        deliveryDate,
+      });
+    }
+
+    // Render confirmation page or redirect
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <title>Order Confirmation</title>
+        <style>
+          body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+            text-align: center;
+          }
+          .message-box {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          }
+          .message-box h1 {
+            color: #27ae60;
+          }
+          .message-box p {
+            color: #555555;
+            margin-top: 20px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="message-box">
+          <h1>Thank You!</h1>
+          <p>Your orders have been placed successfully.</p>
+          <p>You will be redirected to the Orders page shortly.</p>
+        </div>
+        <script>
+          setTimeout(() => {
+            window.location.href = '/orders';
+          }, 3000);
+        </script>
+      </body>
+      </html>
+    `);
+  } catch (err) {
+    console.error('Error processing orders:', err);
+    res.status(500).send('Error processing orders.');
+  }
+});
+// GET /order-data - Display all orders to admin
+router.get('/order-data', ensureAdmin, async (req, res) => {
+  try {
+    const sortField = req.query.sortField || 'createdAt';
+    const sortOrder = req.query.sortOrder || 'DESC';
+
+    // Define valid sort fields
+    const validSortFields = [
+      'id',
+      'customerUsername',
+      'quantity',
+      'supplierUsername',
+      'totalPrice',
+      'deliveryDate',
+      'createdAt',
+      'Product.name',
+      'customer.username',
+      'supplier.username',
+    ];
+
+    // Determine the order clause based on sortField
+    let orderClause;
+    if (validSortFields.includes(sortField)) {
+      if (sortField.includes('.')) {
+        // Sorting on an associated model's field
+        const [association, field] = sortField.split('.');
+        let model;
+        if (association === 'Product') {
+          model = Product;
+        } else if (association === 'customer' || association === 'supplier') {
+          model = User;
+        }
+        orderClause = [[{ model, as: association }, field, sortOrder]];
+      } else {
+        // Sorting on a field in the Order model
+        orderClause = [[sortField, sortOrder]];
+      }
+    } else {
+      orderClause = [['createdAt', 'DESC']];
+    }
+
+    // Fetch all orders with associated customer, product, and supplier
+    const orders = await Order.findAll({
+      include: [
+        { model: User, as: 'customer', attributes: ['username'] },
+        { model: Product, as: 'Product', attributes: ['name'] },
+        { model: User, as: 'supplier', attributes: ['username'] },
+      ],
+      order: orderClause,
+    });
+
+    res.render('order-data', {
+      user: req.user,
+      orders,
+      sortField,
+      sortOrder,
+      error: null, // Ensure 'error' is defined
+    });
+  } catch (err) {
+    console.error('Error fetching orders:', err);
+    res.render('order-data', {
+      user: req.user,
+      orders: [],
+      sortField: req.query.sortField || 'createdAt',
+      sortOrder: req.query.sortOrder || 'DESC',
+      error: 'Error fetching orders.',
+    });
+  }
+});
 
 module.exports = router;
 

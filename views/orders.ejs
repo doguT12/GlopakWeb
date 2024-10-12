@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Glopak Ambalaj - Orders</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    /* Base styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 90%;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header, footer {
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      padding: 20px 0;
+      text-align: center;
+    }
+    header h1, footer p {
+      margin: 0;
+    }
+    nav {
+      background-color: #34495e;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 10px;
+    }
+    nav a {
+      color: #ecf0f1;
+      text-decoration: none;
+      padding: 10px 15px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      margin: 5px;
+    }
+    nav a:hover {
+      background-color: #2980b9;
+    }
+    .products-section {
+      margin-top: 20px;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .products-section h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #2c3e50;
+    }
+    /* Grid styles */
+    .products-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .product-card {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    .product-card img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    .product-card h3 {
+      margin: 10px 0;
+      color: #34495e;
+    }
+    .product-card p {
+      color: #555;
+      font-size: 1em;
+      margin-bottom: 10px;
+    }
+    .order-actions {
+      margin-top: 10px;
+    }
+    .order-actions label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      text-align: left;
+    }
+    .order-actions input,
+    .order-actions select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    .order-button {
+      display: block;
+      width: 200px;
+      margin: 30px auto 0 auto;
+      padding: 12px 0;
+      background-color: #27ae60;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      font-size: 1.1em;
+      transition: background-color 0.3s;
+      border: none;
+      cursor: pointer;
+    }
+    .order-button:hover {
+      background-color: #1e8449;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 20px;
+    }
+    @media (max-width: 600px) {
+      nav {
+        flex-direction: column;
+      }
+      nav a {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <h1>Welcome to Glopak Ambalaj</h1>
+      <p>Your Trusted Partner in Packaging Solutions</p>
+    </div>
+  </header>
+
+  <nav>
+    <a href="/information">Information</a>
+    <a href="/dms">Direct Messages</a>
+    <a href="/products">Products</a>
+    <% if (user && user.role === 'admin') { %>
+      <a href="/order-data">User Data</a>
+    <% } %>
+  </nav>
+
+  <div class="container">
+    <% if (error) { %>
+      <p class="error"><%= error %></p>
+    <% } else { %>
+      <div class="products-section">
+        <h2>Place Your Orders</h2>
+        <% if (products.length === 0) { %>
+          <p>No products available at the moment.</p>
+        <% } else { %>
+          <form action="/orders" method="POST">
+            <div class="products-container">
+              <% products.forEach(product => { %>
+                <div class="product-card">
+                  <img src="<%= product.image %>" alt="<%= product.name %>" onerror="this.onerror=null; this.src='/images/default-product.jpg';">
+                  <h3><%= product.name %></h3>
+                  <p><%= product.description %></p>
+                  <% 
+                    const bestSupplier = bestPrices[product.id];
+                    const recommendation = recommendedSuppliers[product.id];
+                    const suppliers = supplierData[product.id];
+                    if (bestSupplier || recommendation || (suppliers && suppliers.length > 0)) {
+                  %>
+                    <% if (recommendation) { %>
+                      <p>
+                        <strong>Recommended Supplier:</strong> <%= recommendation.supplierUsername %><br>
+                        <strong>Recommendation Score:</strong> <%= recommendation.percentRecommendation %>%<br>
+                        <strong>Recommended Price:</strong> $<%= recommendation.price_per_unit %>
+                      </p>
+                    <% } %>
+                    <% if (bestSupplier) { %>
+                      <p>
+                        <strong>Best Price Supplier:</strong> <%= bestSupplier.supplierUsername %><br>
+                        <strong>Best Price:</strong> $<%= bestSupplier.price_per_unit %>
+                      </p>
+                    <% } %>
+                    <% if (user && (user.role === 'admin' || user.role === 'customer')) { %>
+                      <div class="order-actions">
+                        <label for="supplier-<%= product.id %>">Choose Supplier:</label>
+                        <select name="suppliers[<%= product.id %>]" id="supplier-<%= product.id %>">
+                          <% suppliers.forEach(supplier => { %>
+                            <option value="<%= supplier.username %>" <%= recommendation && supplier.username === recommendation.supplierUsername ? 'selected' : '' %>>
+                              <%= supplier.username %> - $<%= supplier.price_per_unit %> - Quality: <%= supplier.quality %>/10 - Delivery: <%= supplier.delivery_days %> days
+                            </option>
+                          <% }) %>
+                        </select>
+                        <label for="quantity-<%= product.id %>">Quantity:</label>
+                        <input type="number" name="quantities[<%= product.id %>]" id="quantity-<%= product.id %>" min="1" placeholder="Quantity">
+                      </div>
+                    <% } %>
+                  <% } else { %>
+                    <p>No supplier information available.</p>
+                  <% } %>
+                </div>
+              <% }) %>
+            </div>
+            <button type="submit" class="order-button">Place Order</button>
+          </form>
+        <% } %>
+      </div>
+    <% } %>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>&copy; <%= new Date().getFullYear() %> Glopak Ambalaj - All Rights Reserved</p>
+    </div>
+  </footer>
+
+</body>
+</html>
+
+
