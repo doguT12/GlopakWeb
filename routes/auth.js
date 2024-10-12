@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { User, Chat, Message} = require('../models'); // Import User model
+const { User, Chat, Message, Product} = require('../models'); // Import User model
 const securityQuestions = require('../config/securityQuestions'); // Import security questions from config
 const { Op } = require('sequelize');  // Import Sequelize operators
 
@@ -343,5 +343,33 @@ router.post('/dms/:otherUsername', async (req, res) => {
   }
 });
 
+// GET Products Page
+router.get('/products', async (req, res) => {
+  try {
+    const products = await Product.findAll({
+      order: [['createdAt', 'DESC']],
+    });
+    console.log('Fetched Products:', products);
+    
+    // Fetch the current user if logged in
+    let user = null;
+    if (req.session.userId) {
+      user = await User.findByPk(req.session.userId);
+    }
+    
+    // Always pass 'error', set to null if no error
+    res.render('products', { products, user, error: null });
+  } catch (err) {
+    console.error('Error fetching products:', err);
+    
+    // Fetch the current user if logged in
+    let user = null;
+    if (req.session.userId) {
+      user = await User.findByPk(req.session.userId);
+    }
+    
+    res.render('products', { error: 'Error fetching products.', products: [], user });
+  }
+});
 module.exports = router;
 

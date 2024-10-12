@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const path = require('path');
 const bcrypt = require('bcrypt');
-const multer = require('multer');
 require('dotenv').config();
 
 // Initialize app
@@ -32,15 +31,7 @@ app.use(
 const authRoutes = require('./routes/auth');
 app.use('/', authRoutes);
 //import models
-const { sequelize, User } = require('./models');
-
-// import routes product
-const productRoutes = require('./routes/product');
-app.use('/products', productRoutes);
-// image upload
-const upload = multer({ dest: 'public/uploads/' });
-
-app.use(upload.single('image'));
+const { sequelize, User, Product } = require('./models');
 
 //create admin
 async function createAdminUser() {
@@ -66,12 +57,42 @@ async function createAdminUser() {
     console.error('Error creating admin user:', err);
   }
 }
+async function createExampleProducts() {
+  try {
+    const productCount = await Product.count();
+    if (productCount === 0) {
+      await Product.bulkCreate([
+        {
+          name: 'Eco-Friendly Bottle',
+          description: 'A reusable eco-friendly bottle made from sustainable materials.',
+          image: 'https://via.placeholder.com/150?text=Eco+Bottle',
+        },
+        {
+          name: 'Biodegradable Packaging',
+          description: 'High-quality biodegradable packaging solutions for your products.',
+          image: 'https://via.placeholder.com/150?text=Biodegradable+Packaging',
+        },
+        {
+          name: 'Recycled Paper Bags',
+          description: 'Durable and stylish paper bags made from 100% recycled materials.',
+          image: 'https://via.placeholder.com/150?text=Paper+Bags',
+        },
+      ]);
+      console.log('Example products created successfully.');
+    } else {
+      console.log('Products already exist. Skipping creation of example products.');
+    }
+  } catch (err) {
+    console.error('Error creating example products:', err);
+  }
+}
 
 // Sync database and start server
 sequelize.sync({ force: false }) // CHANGE TO TRUE IF ISSUES ARISE
   .then(async () => {
     console.log('Database synced successfully.');
     await createAdminUser(); //call create admin
+    await createExampleProducts(); //call create products
 
     app.listen(3000, () => {
       console.log('Server is running on http://localhost:3000');
