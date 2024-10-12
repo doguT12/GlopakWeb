@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { User, Chat, Message, Product} = require('../models'); // Import User model
+const { User, Chat, Message, Product, CustomerSurvey} = require('../models'); // Import User model
 const securityQuestions = require('../config/securityQuestions'); // Import security questions from config
 const { Op } = require('sequelize');  // Import Sequelize operators
 const ensureAdmin = require('../middleware/ensureAdmin');
@@ -496,6 +496,113 @@ router.post('/removeproduct/:id', ensureAdmin, async (req, res) => {
     res.redirect('/products');
   } catch (err) {
     console.error('Error removing product:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+router.get('/customersurvey', async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).send('Unauthorized. Please log in.');
+  }
+
+  try {
+    const user = await User.findByPk(req.session.userId);
+
+    if (user && (user.role === 'customer' || user.role === 'admin')) {
+      res.render('customersurvey', { user, error: null });
+    } else {
+      res.status(403).send('Access denied. Customers and admins only.');
+    }
+  } catch (err) {
+    console.error('Error fetching user for customersurvey:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+router.post('/customersurvey', async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).send('Unauthorized. Please log in.');
+  }
+
+  try {
+    const user = await User.findByPk(req.session.userId);
+
+    if (user && (user.role === 'customer' || user.role === 'admin')) {
+      const { speed, cost, quality } = req.body;
+
+      const speedValue = parseInt(speed, 10);
+      const costValue = parseInt(cost, 10);
+      const qualityValue = parseInt(quality, 10);
+
+      if (
+        isNaN(speedValue) || speedValue < 0 || speedValue > 10 ||
+        isNaN(costValue) || costValue < 0 || costValue > 10 ||
+        isNaN(qualityValue) || qualityValue < 0 || qualityValue > 10
+      ) {
+        return res.render('customersurvey', { user, error: 'Please provide valid ratings between 0 and 10.' });
+      }
+
+      await CustomerSurvey.create({
+        username: user.username,
+        speed: speedValue,
+        cost: costValue,
+        quality: qualityValue,
+      });
+
+      // Send a thank you message
+      res.send(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Thank You</title>
+          <style>
+            body {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background-color: #f4f4f4;
+              font-family: Arial, sans-serif;
+              text-align: center;
+            }
+            .message-box {
+              background-color: #ffffff;
+              padding: 40px;
+              border-radius: 8px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            .message-box h1 {
+              color: #27ae60;
+            }
+            .message-box p {
+              color: #555555;
+              margin-top: 20px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="message-box">
+            <h1>Thank You!</h1>
+            <p>Your survey has been submitted successfully.</p>
+            <p>You will be redirected to the Products page shortly.</p>
+          </div>
+          <script>
+            // Redirect after 3 seconds (3000 milliseconds)
+            setTimeout(() => {
+              window.location.href = '/products';
+            }, 3000);
+          </script>
+        </body>
+        </html>
+      `);
+    } else {
+      res.status(403).send('Access denied. Customers and admins only.');
+    }
+  } catch (err) {
+    console.error('Error handling customer survey submission:', err);
     res.status(500).send('Internal Server Error');
   }
 });

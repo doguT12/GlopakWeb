@@ -1,20 +1,19 @@
-module.exports = function ensureAdmin(req, res, next) {
-  if (req.session && req.session.userId) {
-    // Assuming User model is accessible here
-    const { User } = require('../models');
+function ensureAdmin(req, res, next) {
+  if (req.session.userId) {
     User.findByPk(req.session.userId)
       .then(user => {
         if (user && user.role === 'admin') {
-          next();
+          next(); // If user is an admin, allow access, this is used in the search locationa and the products
         } else {
           res.status(403).send('Access denied. Admins only.');
         }
       })
       .catch(err => {
-        console.error('Error in ensureAdmin middleware:', err);
-        res.status(500).send('Internal Server Error');
+        res.status(500).send('Internal server error.');
       });
   } else {
-    res.status(401).send('Unauthorized. Please log in.');
+    res.redirect('/login');
   }
-};
+}
+
+module.exports = ensureAdmin;

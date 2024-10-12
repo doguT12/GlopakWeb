@@ -26,6 +26,25 @@ app.use(
     saveUninitialized: false,
   })
 );
+// make 'user' available in all templates
+app.use(async (req, res, next) => {
+  if (req.session.userId) {
+    try {
+      const user = await User.findByPk(req.session.userId);
+      if (user) {
+        res.locals.user = user;
+      } else {
+        res.locals.user = null;
+      }
+    } catch (err) {
+      console.error('Error fetching user in middleware:', err);
+      res.locals.user = null;
+    }
+  } else {
+    res.locals.user = null;
+  }
+  next();
+});
 
 // import routes auth
 const authRoutes = require('./routes/auth');

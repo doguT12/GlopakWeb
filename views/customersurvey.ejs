@@ -1,0 +1,197 @@
+<!-- views/customersurvey.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glopak Ambalaj - Customer Survey</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      padding: 10px 0;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    nav {
+      background-color: #34495e;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: #ecf0f1;
+      text-decoration: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      margin: 5px;
+    }
+
+    nav a:hover {
+      background-color: #2980b9;
+    }
+
+    .survey-section {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-top: 30px;
+    }
+
+    .survey-section h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+
+    .survey-form label {
+      display: block;
+      margin-bottom: 10px;
+      color: #34495e;
+      font-weight: bold;
+    }
+
+    .slider-container {
+      margin-bottom: 25px;
+    }
+
+    .slider-container input[type="range"] {
+      width: 100%;
+    }
+
+    .slider-value {
+      text-align: right;
+      font-weight: bold;
+      color: #2980b9;
+    }
+
+    .survey-section button {
+      width: 100%;
+      padding: 12px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .survey-section button:hover {
+      background-color: #1e8449;
+    }
+
+    .error {
+      color: red;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      nav a {
+        width: 80%;
+        text-align: center;
+      }
+
+      .survey-section {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <h1>Welcome to Glopak Ambalaj</h1>
+      <p>Your Trusted Partner in Packaging Solutions</p>
+    </div>
+  </header>
+
+
+  <nav>
+    <a href="/information">Information</a>
+    <a href="/dms">Direct Messages</a>
+    <a href="/products">Products</a>
+    <% if (user && user.role === 'admin') { %>
+      <a href="/user-data">User Data</a>
+    <% } %>
+  </nav>
+
+  <div class="container">
+    <% if (typeof error !== 'undefined' && error) { %>
+      <p class="error"><%= error %></p>
+    <% } else { %>
+      <div class="survey-section">
+        <h2>Customer Survey</h2>
+        <form action="/customersurvey" method="POST">
+          
+          <div class="slider-container">
+            <label for="speed">Rate the Importance of Speed in Your Orders:</label>
+            <input type="range" id="speed" name="speed" min="0" max="10" value="5" oninput="document.getElementById('speedValue').innerText = this.value;">
+            <div class="slider-value">Value: <span id="speedValue">5</span>/10</div>
+          </div>
+
+          <div class="slider-container">
+            <label for="cost">Rate the Importance of Cost in Your Orders:</label>
+            <input type="range" id="cost" name="cost" min="0" max="10" value="5" oninput="document.getElementById('costValue').innerText = this.value;">
+            <div class="slider-value">Value: <span id="costValue">5</span>/10</div>
+          </div>
+
+        
+          <div class="slider-container">
+            <label for="quality">Rate the Importance of Quality in Your Orders:</label>
+            <input type="range" id="quality" name="quality" min="0" max="10" value="5" oninput="document.getElementById('qualityValue').innerText = this.value;">
+            <div class="slider-value">Value: <span id="qualityValue">5</span>/10</div>
+          </div>
+
+          <button type="submit">Submit Survey</button>
+        </form>
+      </div>
+    <% } %>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>&copy; <%= new Date().getFullYear() %> Glopak Ambalaj - All Rights Reserved</p>
+    </div>
+  </footer>
+
+</body>
+</html>

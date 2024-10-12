@@ -8,6 +8,10 @@ const User = require('./user')(sequelize);
 const Chat = require('./chat')(sequelize);
 const Message = require('./message')(sequelize);
 const Product = require('./product')(sequelize); 
+const CustomerSurvey = require('./customersurvey')(sequelize);
+
+User.hasMany(CustomerSurvey, { foreignKey: 'username', sourceKey: 'username' });
+CustomerSurvey.belongsTo(User, { foreignKey: 'username', targetKey: 'username' });
 
 module.exports = {
   sequelize,
@@ -15,4 +19,5 @@ module.exports = {
   Chat,
   Message,
   Product, 
+  CustomerSurvey,
 };
