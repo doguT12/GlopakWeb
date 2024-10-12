@@ -66,6 +66,7 @@
       margin-top: 40px;
     }
 
+    /* Supplier Survey Specific Styles */
     .survey-section {
       background-color: #ffffff;
       padding: 30px;
@@ -110,7 +111,7 @@
     }
 
     .toggle-button.active {
-      background-color: #e74c3c; 
+      background-color: #e74c3c; /* Red for 'x' */
     }
 
     .toggle-button .icon {
@@ -140,6 +141,7 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
+
 
     .additional-info input[type="range"] {
       width: 100%;
@@ -224,16 +226,6 @@
     <a href="/products">Products</a>
     <% if (user && user.role === 'admin') { %>
       <a href="/user-data">User Data</a>
-    <% } %>
-    <% if (user && user.role === 'customer') { %>
-      <a href="/customersurvey" class="survey-button">Customer Survey</a>
-    <% } %>
-    <% if (user && user.role === 'supplier') { %>
-      <a href="/suppliersurvey" class="survey-button">Supplier Survey</a>
-    <% } %>
-    <% if (user && user.role === 'admin') { %>
-      <a href="/customersurvey" class="survey-button">Customer Survey</a>
-      <a href="/suppliersurvey" class="survey-button">Supplier Survey</a>
     <% } %>
   </nav>
 

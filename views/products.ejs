@@ -245,12 +245,12 @@
     <a href="/products">Products</a>
     <% if (user && user.role === 'admin') { %>
       <a href="/user-data">User Data</a>
-    <% } %>
   </nav>
 
   <div class="survey-buttons">
     <% if (user && user.role === 'customer') { %>
-      <a href="/customersurvey" class="survey-button">Customer Survey</a>
+      <a href="/customersurvey" class="survey-button">Customer Survey</a> 
+      <a href="/order" class="survey-button">Order</a>
     <% } %>
     <% if (user && user.role === 'supplier') { %>
       <a href="/suppliersurvey" class="survey-button">Supplier Survey</a>
@@ -258,9 +258,10 @@
     <% if (user && user.role === 'admin') { %>
       <a href="/customersurvey" class="survey-button">Customer Survey</a>
       <a href="/suppliersurvey" class="survey-button">Supplier Survey</a>
+      <a href="/order" class="survey-button">Order</a>
+    <% } %>
     <% } %>
   </div>
-
 
   <div class="container">
     <% if (typeof error !== 'undefined' && error) { %>

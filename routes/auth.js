@@ -371,35 +371,6 @@ router.get('/products', async (req, res) => {
   }
 });
 
-
-router.get('/products', async (req, res) => {
-  try {
-    const products = await Product.findAll({
-      order: [['createdAt', 'DESC']],
-    });
-    console.log('Fetched Products:', products);
-
-    // Fetch the current user if logged in
-    let user = null;
-    if (req.session.userId) {
-      user = await User.findByPk(req.session.userId);
-    }
-
-    // Always pass 'error', set to null if no error
-    res.render('products', { products, user, error: null });
-  } catch (err) {
-    console.error('Error fetching products:', err);
-
-    // Fetch the current user if logged in
-    let user = null;
-    if (req.session.userId) {
-      user = await User.findByPk(req.session.userId);
-    }
-
-    res.render('products', { error: 'Error fetching products.', products: [], user });
-  }
-});
-
 //GET ADD PRODUCT
 router.get('/addproduct', ensureAdmin, (req, res) => {
   User.findByPk(req.session.userId)
@@ -737,5 +708,7 @@ router.post('/suppliersurvey', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+
 module.exports = router;
 
