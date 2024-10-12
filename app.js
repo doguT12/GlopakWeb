@@ -35,7 +35,7 @@ app.use('/', authRoutes);
 const { sequelize, User } = require('./models');
 
 // import routes product
-const productRoutes = require('./routes/products');
+const productRoutes = require('./routes/product');
 app.use('/products', productRoutes);
 // image upload
 const upload = multer({ dest: 'public/uploads/' });

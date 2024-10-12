@@ -1,16 +1,69 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Products</title>
   <link rel="stylesheet" href="/styles.css">
+  <style>
+    .product-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      overflow-y: auto;
+      max-height: 80vh;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .product-item {
+      flex: 1 1 calc(33.333% - 40px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      border-radius: 8px;
+      background-color: #fff;
+    }
+    .product-item img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+    .product-item h2 {
+      margin: 10px 0;
+    }
+    .product-item p {
+      margin: 10px 0;
+    }
+    .admin-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .admin-buttons button {
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .add-product-button {
+      display: block;
+      margin: 20px 0;
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <h1>Products</h1>
     <% if (user && user.role === 'admin') { %>
-      <a href="/products/add" class="button">Add Product</a>
+      <a href="/products/add" class="add-product-button">Add Product</a>
     <% } %>
-    <div class="product-list">
+    <div class="product-container">
       <% products.forEach(product => { %>
         <div class="product-item">
           <h2><%= product.name %></h2>
@@ -19,14 +72,16 @@
             <img src="/uploads/<%= product.image %>" alt="<%= product.name %>">
           <% } %>
           <% if (user && user.role === 'admin') { %>
-            <form action="/products/edit/<%= product.id %>" method="POST">
-              <input type="text" name="name" value="<%= product.name %>">
-              <textarea name="description"><%= product.description %></textarea>
-              <button type="submit">Edit</button>
-            </form>
-            <form action="/products/delete/<%= product.id %>" method="POST">
-              <button type="submit">Delete</button>
-            </form>
+            <div class="admin-buttons">
+              <form action="/products/edit/<%= product.id %>" method="POST">
+                <input type="text" name="name" value="<%= product.name %>">
+                <textarea name="description"><%= product.description %></textarea>
+                <button type="submit">Edit</button>
+              </form>
+              <form action="/products/delete/<%= product.id %>" method="POST">
+                <button type="submit">Delete</button>
+              </form>
+            </div>
           <% } %>
         </div>
       <% }) %>
