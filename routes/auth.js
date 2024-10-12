@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { User, Chat, Message, Product, CustomerSurvey} = require('../models'); // Import User model
+const { User, Chat, Message, Product, CustomerSurvey, SupplierProduct} = require('../models'); // Import User model
 const securityQuestions = require('../config/securityQuestions'); // Import security questions from config
 const { Op } = require('sequelize');  // Import Sequelize operators
 const ensureAdmin = require('../middleware/ensureAdmin');
@@ -644,11 +644,19 @@ router.post('/suppliersurvey', async (req, res) => {
     if (user && (user.role === 'supplier' || user.role === 'admin')) {
       const products = await Product.findAll();
 
+      await SupplierProduct.destroy({
+        where: {
+          username: user.username
+        }
+      });
+
+    
       for (let product of products) {
         const delivery_days = req.body[`delivery_days_${product.id}`];
         const price_per_unit = req.body[`price_per_unit_${product.id}`];
         const quality = req.body[`quality_${product.id}`];
 
+    
         if (delivery_days && price_per_unit && quality) {
           const deliveryDaysInt = parseInt(delivery_days, 10);
           const pricePerUnitFloat = parseFloat(price_per_unit);
@@ -659,10 +667,11 @@ router.post('/suppliersurvey', async (req, res) => {
             isNaN(pricePerUnitFloat) || pricePerUnitFloat < 0 ||
             isNaN(qualityInt) || qualityInt < 0 || qualityInt > 10
           ) {
-            return res.render('suppliersurvey', { user, products, error: 'Please provide valid inputs for all supplied products.' });
+            const freshProducts = await Product.findAll();
+            return res.render('suppliersurvey', { user, products: freshProducts, error: 'Please provide valid inputs for all supplied products.' });
           }
 
-          await SupplierProduct.upsert({
+          await SupplierProduct.create({
             username: user.username,
             productId: product.id,
             delivery_days: deliveryDaysInt,

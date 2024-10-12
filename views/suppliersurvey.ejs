@@ -6,7 +6,6 @@
   <title>Glopak Ambalaj - Supplier Survey</title>
   <link rel="stylesheet" href="/styles.css">
   <style>
-    
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
@@ -67,7 +66,6 @@
       margin-top: 40px;
     }
 
-
     .survey-section {
       background-color: #ffffff;
       padding: 30px;
@@ -97,7 +95,7 @@
       margin-bottom: 10px;
     }
 
-    .supply-button {
+    .toggle-button {
       padding: 8px 16px;
       background-color: #27ae60;
       color: white;
@@ -106,15 +104,22 @@
       cursor: pointer;
       transition: background-color 0.3s;
       font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .supply-button:hover {
-      background-color: #1e8449;
+    .toggle-button.active {
+      background-color: #e74c3c; 
+    }
+
+    .toggle-button .icon {
+      font-size: 1em;
     }
 
     .additional-info {
       margin-top: 15px;
-      display: none;
+      display: none; 
       background-color: #f9f9f9;
       padding: 15px;
       border-radius: 5px;
@@ -128,8 +133,7 @@
       font-weight: bold;
     }
 
-    .additional-info input[type="number"],
-    .additional-info input[type="text"] {
+    .additional-info input[type="number"] {
       width: 100%;
       padding: 8px;
       margin-bottom: 15px;
@@ -137,11 +141,16 @@
       border-radius: 5px;
     }
 
-    .additional-info .slider-value {
+    .additional-info input[type="range"] {
+      width: 100%;
+      margin-bottom: 5px;
+    }
+
+    .slider-value {
       text-align: right;
       font-weight: bold;
       color: #2980b9;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
     }
 
     .submit-button {
@@ -161,7 +170,6 @@
       background-color: #1c5980;
     }
 
-   
     @media (max-width: 768px) {
       nav {
         flex-direction: column;
@@ -175,23 +183,33 @@
     }
   </style>
   <script>
-    function toggleAdditionalInfo(productId) {
+    function toggleAdditionalInfo(button, productId) {
       const infoDiv = document.getElementById(`additional-info-${productId}`);
-      if (infoDiv) { 
-        if (infoDiv.style.display === "none" || infoDiv.style.display === "") {
-          infoDiv.style.display = "block";
-        } else {
-          infoDiv.style.display = "none";
-        }
+      const deliveryInput = document.getElementById(`delivery_days_${productId}`);
+      const priceInput = document.getElementById(`price_per_unit_${productId}`);
+      const qualityInput = document.getElementById(`quality_${productId}`);
+
+      if (infoDiv.style.display === "none" || infoDiv.style.display === "") {
+        infoDiv.style.display = "block";
+        deliveryInput.required = true;
+        priceInput.required = true;
+        qualityInput.required = true;
+        button.classList.add('active');
+        button.querySelector('.icon').innerText = '✖';
       } else {
-        console.error(`Element with ID additional-info-${productId} not found.`);
+        infoDiv.style.display = "none";
+        deliveryInput.required = false;
+        priceInput.required = false;
+        qualityInput.required = false;
+        button.classList.remove('active');
+        button.querySelector('.icon').innerText = '✔';
       }
     }
   </script>
 </head>
 <body>
 
-  <!-- Header Section -->
+
   <header>
     <div class="container">
       <h1>Welcome to Glopak Ambalaj</h1>
@@ -199,13 +217,23 @@
     </div>
   </header>
 
-  <!-- Navigation Bar -->
+
   <nav>
     <a href="/information">Information</a>
     <a href="/dms">Direct Messages</a>
     <a href="/products">Products</a>
     <% if (user && user.role === 'admin') { %>
       <a href="/user-data">User Data</a>
+    <% } %>
+    <% if (user && user.role === 'customer') { %>
+      <a href="/customersurvey" class="survey-button">Customer Survey</a>
+    <% } %>
+    <% if (user && user.role === 'supplier') { %>
+      <a href="/suppliersurvey" class="survey-button">Supplier Survey</a>
+    <% } %>
+    <% if (user && user.role === 'admin') { %>
+      <a href="/customersurvey" class="survey-button">Customer Survey</a>
+      <a href="/suppliersurvey" class="survey-button">Supplier Survey</a>
     <% } %>
   </nav>
 
@@ -220,16 +248,21 @@
           <% products.forEach(product => { %>
             <div class="product-item">
               <div class="product-name"><%= product.name %></div>
-              <button type="button" class="supply-button" data-product-id="<%= product.id %>" onclick="toggleAdditionalInfo(this.dataset.productId)">Yes, I supply this product</button>
+              <button type="button" class="toggle-button" onclick="toggleAdditionalInfo(this, '<%= product.id %>')">
+                <span class="icon">✔</span>
+                <span class="label">Yes, I supply this product</span>
+              </button>
               
               <div class="additional-info" id="additional-info-<%= product.id %>">
+                
                 <label for="delivery_days_<%= product.id %>">Number of Days to Deliver:</label>
-                <input type="number" id="delivery_days_<%= product.id %>" name="delivery_days_<%= product.id %>" min="1" required>
+                <input type="number" id="delivery_days_<%= product.id %>" name="delivery_days_<%= product.id %>" min="1">
 
-        
+                
                 <label for="price_per_unit_<%= product.id %>">Price per Unit (USD):</label>
-                <input type="number" id="price_per_unit_<%= product.id %>" name="price_per_unit_<%= product.id %>" step="0.001" min="0" required>
+                <input type="number" id="price_per_unit_<%= product.id %>" name="price_per_unit_<%= product.id %>" step="0.001" min="0">
 
+                
                 <label for="quality_<%= product.id %>">Quality of Product (Out of 10):</label>
                 <input type="range" id="quality_<%= product.id %>" name="quality_<%= product.id %>" min="0" max="10" step="1" value="5" oninput="document.getElementById('qualityValue_<%= product.id %>').innerText = this.value;">
                 <div class="slider-value">Value: <span id="qualityValue_<%= product.id %>">5</span>/10</div>
@@ -250,4 +283,3 @@
 
 </body>
 </html>
-

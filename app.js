@@ -24,7 +24,7 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-  })
+  }) 
 );
 // make 'user' available in all templates
 app.use(async (req, res, next) => {

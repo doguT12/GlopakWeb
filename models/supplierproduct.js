@@ -1,4 +1,3 @@
-// models/supplierproduct.js
 const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
@@ -14,7 +13,7 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: 'Users', // Name of the Users table
+        model: 'Users', 
         key: 'username',
       },
       onUpdate: 'CASCADE',
@@ -24,7 +23,7 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Products', // Name of the Products table
+        model: 'Products', 
         key: 'id',
       },
       onUpdate: 'CASCADE',
