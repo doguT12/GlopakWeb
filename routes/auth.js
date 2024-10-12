@@ -910,7 +910,6 @@ router.post('/orders', ensureCustomerOrAdmin, async (req, res) => {
       });
     }
 
-    // Render confirmation page or redirect
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
@@ -961,13 +960,12 @@ router.post('/orders', ensureCustomerOrAdmin, async (req, res) => {
     res.status(500).send('Error processing orders.');
   }
 });
-// GET /order-data - Display all orders to admin
+// GET /order-data
 router.get('/order-data', ensureAdmin, async (req, res) => {
   try {
     const sortField = req.query.sortField || 'createdAt';
     const sortOrder = req.query.sortOrder || 'DESC';
 
-    // Define valid sort fields
     const validSortFields = [
       'id',
       'customerUsername',
@@ -981,11 +979,9 @@ router.get('/order-data', ensureAdmin, async (req, res) => {
       'supplier.username',
     ];
 
-    // Determine the order clause based on sortField
     let orderClause;
     if (validSortFields.includes(sortField)) {
       if (sortField.includes('.')) {
-        // Sorting on an associated model's field
         const [association, field] = sortField.split('.');
         let model;
         if (association === 'Product') {
@@ -995,14 +991,11 @@ router.get('/order-data', ensureAdmin, async (req, res) => {
         }
         orderClause = [[{ model, as: association }, field, sortOrder]];
       } else {
-        // Sorting on a field in the Order model
         orderClause = [[sortField, sortOrder]];
       }
     } else {
       orderClause = [['createdAt', 'DESC']];
     }
-
-    // Fetch all orders with associated customer, product, and supplier
     const orders = await Order.findAll({
       include: [
         { model: User, as: 'customer', attributes: ['username'] },
@@ -1017,7 +1010,7 @@ router.get('/order-data', ensureAdmin, async (req, res) => {
       orders,
       sortField,
       sortOrder,
-      error: null, // Ensure 'error' is defined
+      error: null,
     });
   } catch (err) {
     console.error('Error fetching orders:', err);
