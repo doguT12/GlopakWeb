@@ -869,7 +869,6 @@ router.get('/orders', ensureCustomerOrAdmin, async (req, res) => {
     });
   }
 });
-
 // POST /orders
 router.post('/orders', ensureCustomerOrAdmin, async (req, res) => {
   const { quantities, suppliers } = req.body;
@@ -960,6 +959,7 @@ router.post('/orders', ensureCustomerOrAdmin, async (req, res) => {
     res.status(500).send('Error processing orders.');
   }
 });
+
 // GET /order-data
 router.get('/order-data', ensureAdmin, async (req, res) => {
   try {
